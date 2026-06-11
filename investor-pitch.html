@@ -47,27 +47,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 .slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
 .slide.prev{opacity:0;transform:translateX(-60px)}
 
-/* Toast Notification */
-#toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-120px);
-  background: rgba(16, 185, 129, 0.95);
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-  border-radius: 50px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  z-index: 1000;
-  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-  backdrop-filter: blur(8px);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  pointer-events: none;
-}
 
 /* ── Navigation ── */
 .nav-bar{
@@ -89,17 +68,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   transition:all .2s;display:flex;align-items:center;gap:8px;
 }
 .nav-btn:hover{background:var(--primary);border-color:var(--primary)}
-.nav-btn-wa {
-  background: #25d366; border: none;
-  color:#fff;padding:10px 20px;border-radius:10px;cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;
-  transition:all .2s;display:flex;align-items:center;gap:8px;
-}
-.nav-btn-wa:hover {
-  background: #20ba5a;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
-}
+
 .slide-counter{color:var(--text-muted);font-size:.85rem;font-weight:500}
 .progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--primary-light));z-index:101;transition:width .4s ease}
 
@@ -193,7 +162,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   .timeline{flex-direction:column;gap:24px}
   .timeline::before{display:none}
   .nav-bar{padding:12px 20px}
-  .nav-btn-wa span { display:none }
   .stat-row{gap:20px}
 }
 </style>
@@ -202,10 +170,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <div class="progress-bar" id="progressBar"></div>
 <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Tam Ekran"><i class="fas fa-expand"></i></button>
-
-<div id="toast">
-  <span>✅</span> <span id="toastMsg">Kopyalandı!</span>
-</div>
 
 <div class="deck" id="deck">
   <div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
@@ -605,30 +569,12 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 <!-- Navigation Bar -->
 <div class="nav-bar">
-  <div class="nav-buttons-left">
-    <button class="nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Geri</button>
-    <button class="nav-btn-wa" onclick="copyCurrentSlide()"><i class="fab fa-whatsapp"></i> WhatsApp için Kopyala</button>
-  </div>
+  <button class="nav-btn" onclick="prevSlide()"><i class="fas fa-arrow-left"></i> Geri</button>
   <span class="slide-counter" id="slideCounter">1 / 12</span>
   <button class="nav-btn" onclick="nextSlide()" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));border:none">İleri <i class="fas fa-arrow-right"></i></button>
 </div>
 
 <script>
-const whatsappTexts = [
-    `*1. Giriş / Kapak*\n\n🚛 *TırBul — Yatırımcı Sunumu*\n_Türkiye'nin İlk Güvenli Taşımacılık Platformu_\n\n🛡️ Otomatik Sigorta\n⭐ Doğrulanmış Şoförler\n📸 Fotoğraflı Teslimat\n\nYatırım Talebi: *$25.000*`,
-    `*2. Sorun*\n\n📌 *SORUN: Anadolu'da Her Sanayicinin Yaşadığı 3 Büyük Sorun*\n\n😰 *1. "Güvenilir tırcı bulamıyorum"*\nYükü kime vereceğini bilemiyor. Belge, geçmiş belirsiz. Her seferinde risk alıyor.\n\n🚫 *2. "Tırcılar sigorta yaptırmıyor"*\nHasar olduğunda tüm zarar sanayicinin üstünde. Sigorta yaptırmak ayrı bir iş, zaman ve maliyet.\n\n💸 *3. "Değnekçiler komisyon yiyor"*\nAracılar gereksiz komisyon alıyor. Şeffaflık yok, fiyatlar şişirilmiş.\n\n_Bu sorun sadece Sivas'a özel değil — Türkiye'de karayolu taşımacılığının %90'ında aynı sorun var._`,
-    `*3. Pazar*\n\n📊 *PAZAR BÜYÜKLÜĞÜ: Devasa Bir Pazar*\n\n💰 Türkiye Lojistik Pazarı: *$100 Milyar*\n🚛 Karayolu Taşımacılığı Payı: *%90*\n📱 Dijitalleşme Oranı: *<%5* (Büyük fırsat!)\n\n📍 *Sivas Başlangıç Pazarı:*\n- Sivas OSB: 370+ aktif firma, %99 doluluk.\n- Sivas 2024 İhracatı: $82M (%17 büyüme).\n- Sivas'ta yılda 30+ yeni fabrika kuruluyor.\n- Sivas'ın yıllık tahmini nakliye hacmi: 500M+ ₺\n\n📍 *Genişleme Yol Haritası:*\n- 1. Yıl: Sivas ve çevre iller (~500M₺)\n- 2. Yıl: İç Anadolu geneli (~5 Milyar₺)\n- 3. Yıl: Türkiye geneli (~50+ Milyar₺)`,
-    `*4. Çözüm*\n\n💡 *ÇÖZÜM: TırBul Güvenli Taşımacılık Garantisi*\n\nSadece yük eşleştirme değil, tam güvence:\n\n🛡️ *Otomatik Sigorta:* Her taşımaya otomatik sigorta dahil. Sanayici ek uğraş ve maliyetten kurtuluyor.\n⭐ *Doğrulanmış Şoförler:* Ehliyet, SRC, belge kontrolü ve Rozet sistemi (🥉Bronz → 🥈Gümüş → 🥇Altın → 💎Elmas).\n📸 *Fotoğraflı Teslimat:* Yükleme ve boşaltmada 4 açıdan fotoğraf kanıtı, GPS kaydı ve dijital imza.\n💰 *Şeffaf Fiyat:* Değnekçiye/aracıya komisyon yok. Fiyatı yük sahibi belirler, nakliyeci teklif verir.\n\n_"Sanayici 'yük ver' der, gerisini biz yaparız."_`,
-    `*5. Ürün Durumu*\n\n✅ *ÜRÜN DURUMU: Bu Bir Fikir Değil, Ürün Hazır ve Çalışıyor!*\n\nYatırım istemeden ÖNCE platformu geliştirdik. Çalışan demomuz hazır:\n\n🏠 *Ana Sayfa:* Arama, istatistik ve özellikler yayında.\n🔐 *Kayıt / Giriş:* Yük sahibi ve nakliyeci için hazır.\n📦 *Yük Sahibi Paneli:* Yük ilanı verme, teklif yönetimi.\n🚛 *Nakliyeci Paneli:* Yük arama, teklif verme, profil yönetimi.\n🛡️ *Sigorta Sistemi:* 3 farklı teminat seçeneği ve otomatik prim hesaplama.\n⭐ *Rozet Sistemi:* Performansa göre şoför derecelendirmesi.`,
-    `*6. Rekabet*\n\n⚔️ *REKABET AVANTAJI: Rakiplerimiz ve Biz*\n\nÖzellik | Değnekçi | Tırport | Kamion | *TırBul*\n━━━━━━━━━━━━━━━━━━━━━━━━\nYük Eşleştirme | ✅ | ✅ | ✅ | *✅*\n*Otomatik Sigorta* | ❌ | ❌ | ❌ | *✅*\n*Şoför Rozet Sistemi* | ❌ | Kısmen | Kısmen | *✅*\n*Fotoğraflı Teslimat* | ❌ | ❌ | ❌ | *✅*\nAnadolu Odağı | ✅ | ❌ | ❌ | *✅*\nKOBİ Dostu | Kısmen | ❌ | ❌ | *✅*\n*Aldığı Yatırım* | - | $2M | $2.5M | *$25K*\n\n_Biz 25.000$ gibi çok küçük bir bütçeyle, rakiplerin milyon dolarlar harcayıp sunamadığı sigorta ve fotoğraflı teslimat paketini sunuyoruz._`,
-    `*7. Gelir Modeli*\n\n💰 *GELİR MODELİ: Para Nereden Gelecek?*\n\n1️⃣ *Hizmet Bedeli:* Her başarılı taşıma bedelinden *%4* komisyon.\n2️⃣ *Sigorta Komisyonu:* Toplu sigorta anlaşmalarından *%20-30* acente kârı.\n3️⃣ *Premium Üyelik:* Nakliyeciler için aylık *₺500 - ₺2.000* arası öncelikli ilan görme üyeliği.\n4️⃣ *Sektörel Reklamlar:* Lastik, yağ, servis firmalarından reklam gelirleri.\n\n📐 *Örnek Hesap (30.000₺ Taşıma):*\n- Taşıma bedeli: 30.000₺\n- Platform Hizmet Bedeli (%4): 1.200₺\n- Sigorta Komisyon Geliri: 400₺\n- *Toplam Platform Geliri: 1.600₺*`,
-    `*8. Projeksiyon*\n\n📈 *12 AYLIK PROJEKSİYON (Ayda 200 Eşleşme Hedefi)*\n\n💵 *Aylık Toplam Gelir: 290.000₺*\n- Hizmet Bedeli Geliri: 200.000₺\n- Sigorta Komisyonu Geliri: 60.000₺\n- Nakliyeci Premium Üyelik: 30.000₺\n\n💸 *Aylık Toplam Gider: 185.000₺*\n- Sigorta Prim Ödemesi: 80.000₺\n- Personel Giderleri: 60.000₺\n- İşletme & Altyapı: 25.000₺\n- Pazarlama & Saha: 20.000₺\n\n✅ *Aylık Net Kâr: 105.000₺ (~$3.000)*`,
-    `*9. Bütçe ve Yol Haritası*\n\n💵 *YATIRIM TALEBİ VE BÜTÇE DAĞILIMI*\n\nToplam Yatırım İhtiyacı: *$25.000*\n\n- 💻 Ürün Geliştirme (%30): *$7.500*\n- 📣 Pazarlama ve Saha Çalışmaları (%25): *$6.250*\n- 🏢 İşletme ve Ofis Giderleri (%20): *$5.000*\n- ⚖️ Yasal İzinler ve Sigorta Teminatı (%15): *$3.750*\n- 🛡️ Yedek Akçe (%10): *$2.500*\n\n📅 *12 Aylık Yol Haritası:*\n- *Ay 1-3 (Q1):* Şirket kurulumu, mobil uygulama yayını, ilk 100 kullanıcı.\n- *Ay 4-6 (Q2):* 500 kullanıcıya ulaşma, ayda 50+ eşleşme, ilk gelirler.\n- *Ay 7-9 (Q3):* 1.000 kullanıcıya ulaşma, ayda 150+ eşleşme, başabaş noktası.\n- *Ay 10-12 (Q4):* 2.000+ kullanıcı, ayda 200+ eşleşme ve *NET KÂRA GEÇİŞ*.`,
-    `*10. Yatırımcı Getirisi*\n\n📊 *YATIRIMCI GETİRİSİ: 25.000$ Yatırıma Ne Kazandırır?*\n\nOrtaklık için 3 esnek seçenek sunuyoruz:\n\n🅰️ *Hisse Ortaklığı:* $25K yatırıma *%20 hisse*. 2. yılda hedeflenen şirket değeri $500K+ (*4x getiri potansiyeli*).\n🅱️ *Kâr Payı (Önerilen):* 1. yıl net kârın *%25'i*, sonraki yıllar ömür boyu *%15*. (Yıllık *$5.000+ pasif gelir* hedefi).\n🅲 *Borç + Bonus:* $25K borç olarak verilir, 2 yılda $28K+ olarak geri ödenir, üzerine küçük bir kâr payı bonusu eklenir.\n\n_Tırport $2M yatırım aldı. Biz $25K ile Anadolu'nun dev gücünü arkamıza alıp daha kârlı bir model kuruyoruz._`,
-    `*11. Neden Biz?*\n\n🎯 *NEDEN BİZ? Bu İş Neden Başarılı Olur?*\n\n1️⃣ *Sorun Sahada Gerçek:* Uydurma değil, her sanayici ve nakliyeci bu güven krizini her gün yaşıyor.\n2️⃣ *Ürün Hazır:* Fikir satmıyoruz. Platform kodlandı, demomuz çalışıyor.\n3️⃣ *Saha ve Güven Avantajı:* Sivas sanayisinde hırdavat işi yapıyoruz. Çevremiz, esnaf ve nakliyeciler bizi tanır. Güven bağımız hazır.\n4️⃣ *Rakipler Anadolu'yu Boş Bıraktı:* Büyük startuplar İstanbul'da dev şirketlerle uğraşıyor. Anadolu KOBİ'leri sahipsiz.\n5️⃣ *Yüksek Verimlilik:* Milyon dolarlık reklam bütçelerine gerek yok. $25K ile 12 ayda kâr eden sürdürülebilir bir yapı kurabiliyoruz.\n\n Kurucu & CEO: Ferhat Evci\nSivas sanayi esnafı, saha dinamiklerine hakim, yerel ağa ve dijital ürün tecrübesine sahip girişimci.`,
-    `*12. Kapanış*\n\n🚛 *BİRLİKTE BÜYÜYELİM*\n\nSorun gerçek. Ürün hazır. Pazar devasa.\nTek eksik: Birlikte yola çıkmak!\n\n💰 Yatırım: *$25.000*\n📅 Kâra Geçiş: *12 Ay*\n📈 Getiri Potansiyeli: *4x*\n\n*TırBul — Güvenle taşı, güvenle teslim al.* 🛡️\n\n📞 İletişim: Ferhat Evci | 📍 Sivas`
-];
-
 let current = 0;
 const slides = document.querySelectorAll('.slide');
 const total = slides.length;
@@ -665,26 +611,6 @@ document.addEventListener('touchend', e => {
 function toggleFullscreen() {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen();
   else document.exitFullscreen();
-}
-
-function copyCurrentSlide() {
-  const text = whatsappTexts[current];
-  navigator.clipboard.writeText(text).then(() => {
-    showToast(`Slayt ${current + 1} kopyalandı! Artık WhatsApp'a yapıştırabilirsiniz.`);
-  }).catch(err => {
-    console.error('Kopyalama hatası:', err);
-    showToast('Kopyalama başarısız oldu. Lütfen manuel kopyalayın.');
-  });
-}
-
-function showToast(message) {
-  const toast = document.getElementById('toast');
-  const toastMsg = document.getElementById('toastMsg');
-  toastMsg.textContent = message;
-  toast.style.transform = 'translateX(-50%) translateY(0)';
-  setTimeout(() => {
-    toast.style.transform = 'translateX(-50%) translateY(-120px)';
-  }, 3000);
 }
 
 showSlide(0);
