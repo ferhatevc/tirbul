@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TırBul — Yük Sahibi Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary:#FF6B35;--primary-light:#FFB347;--bg:#0a0f1e;--bg-light:#111827;--surface:rgba(17,24,39,0.7);--text:#f0f0f0;--text-sec:#9ca3af;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;--border:rgba(255,255,255,0.08);--radius:16px;--radius-sm:10px}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+        a{text-decoration:none;color:inherit}
+
+        /* SIDEBAR */
+        .sidebar{width:260px;background:rgba(17,24,39,0.95);border-right:1px solid var(--border);padding:1.5rem 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform 0.3s}
+        .sidebar-logo{padding:0 1.5rem;margin-bottom:2rem;font-size:1.5rem;font-weight:800}
+        .sidebar-logo span:first-child{color:var(--primary)}
+        .sidebar-menu{flex:1}
+        .menu-item{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;cursor:pointer;transition:all 0.2s;font-size:0.9rem;font-weight:500;color:var(--text-sec);border-left:3px solid transparent}
+        .menu-item:hover{background:rgba(255,255,255,0.03);color:var(--text)}
+        .menu-item.active{color:var(--primary);background:rgba(255,107,53,0.05);border-left-color:var(--primary)}
+        .menu-item .icon{font-size:1.2rem;width:24px;text-align:center}
+        .sidebar-bottom{padding:1rem 1.5rem;border-top:1px solid var(--border)}
+        .user-info{display:flex;align-items:center;gap:0.75rem}
+        .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff}
+        .user-name{font-size:0.85rem;font-weight:600}
+        .user-type{font-size:0.7rem;color:var(--text-sec)}
+
+        /* MAIN */
+        .main{flex:1;margin-left:260px;min-height:100vh}
+        .topbar{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(10,15,30,0.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+        .topbar-title{font-size:1.1rem;font-weight:700}
+        .topbar-actions{display:flex;align-items:center;gap:1rem}
+        .notif-btn{position:relative;background:none;border:none;color:var(--text-sec);font-size:1.3rem;cursor:pointer;padding:0.4rem}
+        .notif-badge{position:absolute;top:0;right:0;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;font-size:0.65rem;display:flex;align-items:center;justify-content:center;font-weight:700}
+        .logout-btn{padding:0.5rem 1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-sec);font-size:0.8rem;cursor:pointer;font-family:inherit;transition:all 0.2s}
+        .logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+        .content{padding:2rem}
+
+        /* PAGE SECTIONS */
+        .page{display:none}.page.active{display:block}
+        .welcome{font-size:1.5rem;font-weight:800;margin-bottom:1.5rem}
+        .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+        .stat-card{padding:1.5rem;border-radius:var(--radius);background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);transition:transform 0.2s}
+        .stat-card:hover{transform:translateY(-2px)}
+        .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:0.75rem}
+        .stat-card .value{font-size:1.8rem;font-weight:800}
+        .stat-card .label{font-size:0.8rem;color:var(--text-sec);margin-top:0.2rem}
+
+        /* LOAD CARDS */
+        .section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+        .section-header h2{font-size:1.2rem;font-weight:700}
+        .filter-tabs{display:flex;gap:0.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+        .filter-tab{padding:0.5rem 1.2rem;border-radius:50px;font-size:0.8rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-sec);font-family:inherit;transition:all 0.2s}
+        .filter-tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+        .filter-tab:hover:not(.active){border-color:rgba(255,107,53,0.3);color:var(--text)}
+        .load-grid{display:grid;gap:1rem}
+        .load-card{padding:1.5rem;border-radius:var(--radius);background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);transition:all 0.2s;cursor:pointer}
+        .load-card:hover{border-color:rgba(255,107,53,0.2);transform:translateY(-2px)}
+        .load-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+        .load-route{font-size:1.1rem;font-weight:700;display:flex;align-items:center;gap:0.5rem}
+        .load-route .arrow{color:var(--primary)}
+        .status{padding:0.3rem 0.8rem;border-radius:50px;font-size:0.7rem;font-weight:700;text-transform:uppercase}
+        .status-active{background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.2)}
+        .status-matched{background:rgba(255,107,53,0.1);color:var(--primary);border:1px solid rgba(255,107,53,0.2)}
+        .status-completed{background:rgba(59,130,246,0.1);color:var(--info);border:1px solid rgba(59,130,246,0.2)}
+        .load-details{display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:0.75rem}
+        .load-detail{display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:var(--text-sec)}
+        .load-detail strong{color:var(--text)}
+        .load-price{font-size:1.3rem;font-weight:800;color:var(--success)}
+        .load-footer{display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)}
+        .insurance-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.25rem 0.6rem;border-radius:50px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);color:var(--success);font-size:0.75rem;font-weight:600}
+
+        /* FORM */
+        .form-card{max-width:700px;padding:2rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border)}
+        .progress-bar{display:flex;gap:0;margin-bottom:2rem}
+        .progress-step{flex:1;text-align:center;padding:0.7rem 0.5rem;font-size:0.75rem;font-weight:600;color:var(--text-sec);position:relative;border-bottom:3px solid var(--border);transition:all 0.3s}
+        .progress-step.active{color:var(--primary);border-bottom-color:var(--primary)}
+        .progress-step.done{color:var(--success);border-bottom-color:var(--success)}
+        .step-content{display:none}.step-content.active{display:block}
+        .form-group{margin-bottom:1.2rem}
+        .form-group label{display:block;font-size:0.8rem;color:var(--text-sec);margin-bottom:0.4rem;font-weight:500}
+        .form-group input,.form-group select,.form-group textarea{width:100%;padding:0.75rem 1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.2s}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary)}
+        .form-group textarea{resize:vertical;min-height:80px}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .ins-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+        .ins-card{padding:1.2rem;border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;text-align:center;transition:all 0.2s}
+        .ins-card:hover{border-color:rgba(255,107,53,0.3)}
+        .ins-card.selected{border-color:var(--primary);background:rgba(255,107,53,0.05)}
+        .ins-card h4{font-size:0.9rem;margin-bottom:0.3rem}
+        .ins-card .rate{font-size:1.1rem;font-weight:800;color:var(--primary);margin-bottom:0.2rem}
+        .ins-card p{font-size:0.7rem;color:var(--text-sec)}
+        .ins-card .rec{display:inline-block;padding:0.15rem 0.5rem;border-radius:50px;background:rgba(255,107,53,0.1);color:var(--primary);font-size:0.65rem;font-weight:700;margin-bottom:0.3rem}
+        .summary-card{padding:1.5rem;border-radius:var(--radius-sm);background:rgba(255,107,53,0.03);border:1px solid rgba(255,107,53,0.1);margin-top:1rem}
+        .summary-card h4{margin-bottom:0.75rem;font-size:0.9rem}
+        .summary-row{display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.4rem;color:var(--text-sec)}
+        .summary-row strong{color:var(--text)}
+        .summary-total{display:flex;justify-content:space-between;font-size:1rem;font-weight:800;padding-top:0.75rem;margin-top:0.75rem;border-top:1px solid var(--border)}
+        .btn{padding:0.8rem 2rem;border-radius:var(--radius-sm);font-weight:700;font-size:0.9rem;cursor:pointer;border:none;font-family:inherit;transition:all 0.3s}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.3)}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-sec)}
+        .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+        .btn-group{display:flex;gap:1rem;margin-top:1.5rem;justify-content:flex-end}
+
+        /* OFFERS */
+        .offer-card{padding:1.5rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);margin-bottom:1rem}
+        .offer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+        .offer-driver{display:flex;align-items:center;gap:1rem}
+        .badge-icon{font-size:1.5rem}
+        .driver-info h3{font-size:1rem;font-weight:700}
+        .driver-meta{display:flex;gap:1rem;font-size:0.8rem;color:var(--text-sec)}
+        .offer-price{font-size:1.3rem;font-weight:800;color:var(--success)}
+        .offer-msg{padding:0.75rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.03);font-size:0.85rem;color:var(--text-sec);margin-bottom:1rem;font-style:italic}
+        .offer-actions{display:flex;gap:0.75rem}
+        .btn-sm{padding:0.5rem 1.2rem;font-size:0.8rem;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.2s}
+        .btn-accept{background:var(--success);color:#fff}.btn-accept:hover{opacity:0.9}
+        .btn-reject{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}.btn-reject:hover{background:rgba(239,68,68,0.2)}
+
+        .toast{position:fixed;top:1.5rem;right:1.5rem;padding:1rem 1.5rem;border-radius:var(--radius-sm);color:#fff;font-weight:600;font-size:0.9rem;z-index:9999;transform:translateX(120%);transition:transform 0.4s;display:flex;align-items:center;gap:0.5rem}
+        .toast.show{transform:translateX(0)}
+        .toast.success{background:linear-gradient(135deg,#059669,#10b981)}
+        .toast.error{background:linear-gradient(135deg,#dc2626,#ef4444)}
+        .empty{text-align:center;padding:3rem;color:var(--text-sec)}
+        .empty .icon{font-size:3rem;margin-bottom:1rem}
+
+        .hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--bg-light);border:1px solid var(--border);border-radius:8px;padding:0.6rem;cursor:pointer;flex-direction:column;gap:4px}
+        .hamburger span{width:20px;height:2px;background:var(--text)}
+        .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90}
+        .overlay.active{display:block}
+
+        @media(max-width:768px){
+            .sidebar{transform:translateX(-100%)}
+            .sidebar.open{transform:translateX(0)}
+            .main{margin-left:0}
+            .hamburger{display:flex}
+            .stat-grid{grid-template-columns:repeat(2,1fr)}
+            .ins-grid{grid-template-columns:1fr}
+            .form-row{grid-template-columns:1fr}
+            .content{padding:1rem}
+        }
+    </style>
+</head>
+<body>
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-logo"><span>Tır</span><span>Bul</span></a>
+        <nav class="sidebar-menu">
+            <div class="menu-item active" onclick="showPage('dashboard')"><span class="icon">📊</span>Kontrol Paneli</div>
+            <div class="menu-item" onclick="showPage('loads')"><span class="icon">📦</span>Yüklerim</div>
+            <div class="menu-item" onclick="showPage('create')"><span class="icon">➕</span>Yeni Yük İlanı</div>
+            <div class="menu-item" onclick="showPage('offers')"><span class="icon">📩</span>Gelen Teklifler<span id="offerCount" style="margin-left:auto;background:var(--danger);color:#fff;padding:0.15rem 0.5rem;border-radius:50px;font-size:0.7rem;font-weight:700"></span></div>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="user-info">
+                <div class="avatar" id="userAvatar"></div>
+                <div><div class="user-name" id="userName"></div><div class="user-type">Yük Sahibi</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title" id="pageTitle">Kontrol Paneli</div>
+            <div class="topbar-actions">
+                <button class="notif-btn" title="Bildirimler">🔔<span class="notif-badge" id="notifBadge">3</span></button>
+                <button class="logout-btn" onclick="logout()">Çıkış Yap</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- DASHBOARD -->
+            <div class="page active" id="page-dashboard">
+                <div class="welcome" id="welcomeMsg"></div>
+                <div class="stat-grid">
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(255,107,53,0.1)">📦</div><div class="value" id="sActive">0</div><div class="label">Aktif İlanlar</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(255,179,71,0.1)">🤝</div><div class="value" id="sMatched">0</div><div class="label">Eşleşen</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(59,130,246,0.1)">✅</div><div class="value" id="sCompleted">0</div><div class="label">Tamamlanan</div></div>
+                    <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,0.1)">💰</div><div class="value" id="sSaved">₺0</div><div class="label">Toplam Tasarruf</div></div>
+                </div>
+                <div class="section-header"><h2>Son Yük İlanlarım</h2><button class="btn btn-primary" onclick="showPage('create')" style="font-size:0.8rem;padding:0.5rem 1rem">+ Yeni İlan</button></div>
+                <div class="load-grid" id="recentLoads"></div>
+            </div>
+
+            <!-- LOADS LIST -->
+            <div class="page" id="page-loads">
+                <h2 style="margin-bottom:1rem;font-size:1.3rem">Yüklerim</h2>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterLoads('all',this)">Tümü</button>
+                    <button class="filter-tab" onclick="filterLoads('active',this)">Aktif</button>
+                    <button class="filter-tab" onclick="filterLoads('matched',this)">Eşleşti</button>
+                    <button class="filter-tab" onclick="filterLoads('completed',this)">Tamamlandı</button>
+                </div>
+                <div class="load-grid" id="allLoads"></div>
+            </div>
+
+            <!-- CREATE LOAD -->
+            <div class="page" id="page-create">
+                <h2 style="margin-bottom:1.5rem;font-size:1.3rem">Yeni Yük İlanı Oluştur</h2>
+                <div class="form-card">
+                    <div class="progress-bar">
+                        <div class="progress-step active" data-step="1">1. Yük Bilgileri</div>
+                        <div class="progress-step" data-step="2">2. Güzergah</div>
+                        <div class="progress-step" data-step="3">3. Tarih & Fiyat</div>
+                        <div class="progress-step" data-step="4">4. Güvence</div>
+                    </div>
+                    <form id="createForm">
+                        <div class="step-content active" data-step="1">
+                            <div class="form-group"><label>Yük Türü</label><select id="cType" required><option value="">Seçiniz</option><option>Demir</option><option>Gıda</option><option>İnşaat Malz.</option><option>Tekstil</option><option>Tarım</option><option>Makine</option><option>Mobilya</option><option>Kimyasal</option><option>Diğer</option></select></div>
+                            <div class="form-group"><label>Ağırlık (Ton)</label><input type="number" id="cWeight" placeholder="25" required></div>
+                            <div class="form-group"><label>Açıklama</label><textarea id="cDesc" placeholder="Yük hakkında detay bilgi..."></textarea></div>
+                        </div>
+                        <div class="step-content" data-step="2">
+                            <div class="form-row">
+                                <div class="form-group"><label>Kalkış Şehri</label><select id="cFrom"><option>Sivas</option><option>Kayseri</option><option>Tokat</option><option>Yozgat</option><option>Ankara</option><option>İstanbul</option></select></div>
+                                <div class="form-group"><label>Kalkış İlçe</label><input type="text" id="cFromD" placeholder="Merkez"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label>Varış Şehri</label><select id="cTo"><option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Kayseri</option><option>Trabzon</option><option>Bursa</option><option>Konya</option><option>Erzurum</option><option>Sivas</option></select></div>
+                                <div class="form-group"><label>Varış İlçe</label><input type="text" id="cToD" placeholder=""></div>
+                            </div>
+                        </div>
+                        <div class="step-content" data-step="3">
+                            <div class="form-row">
+                                <div class="form-group"><label>Yükleme Tarihi</label><input type="date" id="cDate" required></div>
+                                <div class="form-group"><label>Son Teslim Tarihi</label><input type="date" id="cDate2"></div>
+                            </div>
+                            <div class="form-group"><label>Teklif Fiyatı (₺)</label><input type="number" id="cPrice" placeholder="35000" required></div>
+                            <div class="form-group"><label>Araç Tipi Tercihi</label><select id="cVehicle"><option>Fark Etmez</option><option>Tır</option><option>Kamyon</option><option>Kamyonet</option></select></div>
+                        </div>
+                        <div class="step-content" data-step="4">
+                            <h3 style="margin-bottom:1rem;font-size:1rem">🛡️ TırBul Güvence Seçenekleri</h3>
+                            <div class="ins-grid">
+                                <div class="ins-card" onclick="selectIns('basic',this)"><h4>Tam Ziya</h4><div class="rate" id="insBasicRate">₺0</div><p>Yük değerinin %0.2'si</p><p style="margin-top:0.3rem;font-size:0.7rem">Temel koruma</p></div>
+                                <div class="ins-card selected" onclick="selectIns('standard',this)"><div class="rec">ÖNERİLEN</div><h4>Dar Teminat</h4><div class="rate" id="insStdRate">₺0</div><p>Yük değerinin %0.4'ü</p><p style="margin-top:0.3rem;font-size:0.7rem">Kaza + temel riskler</p></div>
+                                <div class="ins-card" onclick="selectIns('wide',this)"><h4>Geniş Teminat</h4><div class="rate" id="insWideRate">₺0</div><p>Yük değerinin %0.8'i</p><p style="margin-top:0.3rem;font-size:0.7rem">Tam koruma (All Risks)</p></div>
+                            </div>
+                            <div class="summary-card">
+                                <h4>📋 İlan Özeti</h4>
+                                <div class="summary-row"><span>Yük</span><strong id="sumType">-</strong></div>
+                                <div class="summary-row"><span>Güzergah</span><strong id="sumRoute">-</strong></div>
+                                <div class="summary-row"><span>Ağırlık</span><strong id="sumWeight">-</strong></div>
+                                <div class="summary-row"><span>Teklif Fiyatı</span><strong id="sumPrice">-</strong></div>
+                                <div class="summary-row"><span>Sigorta Primi</span><strong id="sumIns">-</strong></div>
+                                <div class="summary-row"><span>TırBul Hizmet Bedeli</span><strong id="sumFee">-</strong></div>
+                                <div class="summary-total"><span>Toplam Maliyet</span><strong id="sumTotal">-</strong></div>
+                            </div>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline" id="btnPrev" onclick="prevStep()" style="display:none">← Geri</button>
+                            <button type="button" class="btn btn-primary" id="btnNext" onclick="nextStep()">İleri →</button>
+                            <button type="button" class="btn btn-primary" id="btnSubmit" onclick="submitLoad()" style="display:none">🛡️ İlanı Yayınla</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- OFFERS -->
+            <div class="page" id="page-offers">
+                <h2 style="margin-bottom:1.5rem;font-size:1.3rem">Gelen Teklifler</h2>
+                <div id="offersContainer"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const BADGE_ICONS = {bronze:'🥉',silver:'🥈',gold:'🥇',diamond:'💎'};
+        const BADGE_NAMES = {bronze:'Bronz',silver:'Gümüş',gold:'Altın',diamond:'Elmas'};
+        const STATUS_MAP = {active:{text:'Aktif',cls:'status-active'},matched:{text:'Eşleşti',cls:'status-matched'},completed:{text:'Tamamlandı',cls:'status-completed'}};
+        let currentUser, currentStep=1, selectedInsurance='standard';
+
+        function init(){
+            const u = localStorage.getItem('tirbul_current_user');
+            if(!u) return window.location.href='register.html';
+            currentUser = JSON.parse(u);
+            if(currentUser.type==='carrier') return window.location.href='dashboard-carrier.html';
+            document.getElementById('userName').textContent=currentUser.name;
+            document.getElementById('userAvatar').textContent=currentUser.name.split(' ').map(n=>n[0]).join('');
+            document.getElementById('welcomeMsg').textContent='Hoş geldin, '+currentUser.name.split(' ')[0]+'! 👋';
+            updateStats(); renderRecentLoads(); renderOffers();
+            // Set default date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('cDate').value = today;
+        }
+
+        function getLoads(){ return JSON.parse(localStorage.getItem('tirbul_loads')||'[]'); }
+        function getOffers(){ return JSON.parse(localStorage.getItem('tirbul_offers')||'[]'); }
+        function myLoads(){ return getLoads().filter(l=>l.shipperId===currentUser.id); }
+
+        function updateStats(){
+            const loads = myLoads();
+            document.getElementById('sActive').textContent = loads.filter(l=>l.status==='active').length;
+            document.getElementById('sMatched').textContent = loads.filter(l=>l.status==='matched').length;
+            document.getElementById('sCompleted').textContent = loads.filter(l=>l.status==='completed').length;
+            document.getElementById('sSaved').textContent = '₺'+((loads.filter(l=>l.status==='completed').length)*2400).toLocaleString('tr-TR');
+            const offers = getOffers().filter(o=> loads.some(l=>l.id===o.loadId));
+            const cnt = offers.length;
+            document.getElementById('offerCount').textContent = cnt||'';
+            document.getElementById('notifBadge').textContent = cnt;
+        }
+
+        function renderLoadCard(l){
+            const s=STATUS_MAP[l.status]||STATUS_MAP.active;
+            return `<div class="load-card">
+                <div class="load-header">
+                    <div class="load-route">${l.from} <span class="arrow">→</span> ${l.to}</div>
+                    <span class="status ${s.cls}">${s.text}</span>
+                </div>
+                <div class="load-details">
+                    <div class="load-detail">📦 <strong>${l.loadType}</strong></div>
+                    <div class="load-detail">⚖️ <strong>${l.weight} Ton</strong></div>
+                    <div class="load-detail">📅 ${l.date}</div>
+                </div>
+                <div class="load-footer">
+                    <div class="load-price">₺${Number(l.price).toLocaleString('tr-TR')}</div>
+                    <div class="insurance-badge">🛡️ TırBul Güvence</div>
+                </div>
+                ${l.carrierName?`<div style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-sec)">Nakliyeci: <strong style="color:var(--text)">${l.carrierName}</strong></div>`:''}
+            </div>`;
+        }
+
+        function renderRecentLoads(){
+            const loads = myLoads().slice(-5).reverse();
+            document.getElementById('recentLoads').innerHTML = loads.length?loads.map(renderLoadCard).join(''):`<div class="empty"><div class="icon">📦</div><p>Henüz yük ilanınız yok</p><button class="btn btn-primary" onclick="showPage('create')" style="margin-top:1rem">İlk İlanını Ver</button></div>`;
+        }
+
+        function renderAllLoads(filter='all'){
+            let loads = myLoads();
+            if(filter!=='all') loads = loads.filter(l=>l.status===filter);
+            loads = loads.reverse();
+            document.getElementById('allLoads').innerHTML = loads.length?loads.map(renderLoadCard).join(''):'<div class="empty"><div class="icon">📭</div><p>Bu kategoride ilan bulunamadı</p></div>';
+        }
+
+        function filterLoads(f,el){
+            document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+            el.classList.add('active');
+            renderAllLoads(f);
+        }
+
+        function renderOffers(){
+            const loads = myLoads();
+            const offers = getOffers().filter(o=>loads.some(l=>l.id===o.loadId));
+            if(!offers.length){
+                document.getElementById('offersContainer').innerHTML='<div class="empty"><div class="icon">📭</div><p>Henüz teklif yok</p></div>';
+                return;
+            }
+            document.getElementById('offersContainer').innerHTML = offers.map(o=>{
+                const load = getLoads().find(l=>l.id===o.loadId);
+                return `<div class="offer-card">
+                    <div style="font-size:0.8rem;color:var(--text-sec);margin-bottom:0.75rem">${load?load.from+' → '+load.to+' | '+load.loadType+' | '+load.weight+' Ton':''}</div>
+                    <div class="offer-header">
+                        <div class="offer-driver">
+                            <span class="badge-icon">${BADGE_ICONS[o.badge]||'🥉'}</span>
+                            <div class="driver-info">
+                                <h3>${o.carrierName}</h3>
+                                <div class="driver-meta">
+                                    <span>⭐ ${o.rating}</span>
+                                    <span>${BADGE_NAMES[o.badge]||'Bronz'} Şoför</span>
+                                    <span>🚛 ${o.vehicleType} (${o.capacity}T)</span>
+                                    <span>${o.plate}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="offer-price">₺${Number(o.price).toLocaleString('tr-TR')}</div>
+                    </div>
+                    <div class="offer-msg">"${o.message}"</div>
+                    <div class="offer-actions">
+                        <button class="btn-sm btn-accept" onclick="acceptOffer(${o.id},${o.loadId},${o.carrierId},'${o.carrierName}')">✅ Kabul Et</button>
+                        <button class="btn-sm btn-reject" onclick="rejectOffer(${o.id})">❌ Reddet</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function acceptOffer(oid,lid,cid,cname){
+            let loads=getLoads();
+            loads=loads.map(l=>{if(l.id===lid){l.status='matched';l.carrierId=cid;l.carrierName=cname;}return l;});
+            localStorage.setItem('tirbul_loads',JSON.stringify(loads));
+            let offers=getOffers().filter(o=>o.id!==oid);
+            localStorage.setItem('tirbul_offers',JSON.stringify(offers));
+            showToast('Teklif kabul edildi! Nakliyeci bilgilendirilecek.');
+            updateStats(); renderOffers(); renderRecentLoads();
+        }
+        function rejectOffer(oid){
+            let offers=getOffers().filter(o=>o.id!==oid);
+            localStorage.setItem('tirbul_offers',JSON.stringify(offers));
+            showToast('Teklif reddedildi.','error');
+            updateStats(); renderOffers();
+        }
+
+        // FORM STEPS
+        function nextStep(){
+            if(currentStep===1){if(!document.getElementById('cType').value||!document.getElementById('cWeight').value)return showToast('Yük türü ve ağırlık gerekli.','error');}
+            if(currentStep<4){currentStep++;updateFormUI();}
+            if(currentStep===4) updateSummary();
+        }
+        function prevStep(){if(currentStep>1){currentStep--;updateFormUI();}}
+        function updateFormUI(){
+            document.querySelectorAll('.step-content').forEach(s=>s.classList.toggle('active',parseInt(s.dataset.step)===currentStep));
+            document.querySelectorAll('.progress-step').forEach(s=>{
+                const n=parseInt(s.dataset.step);
+                s.classList.toggle('active',n===currentStep);
+                s.classList.toggle('done',n<currentStep);
+            });
+            document.getElementById('btnPrev').style.display=currentStep>1?'inline-flex':'none';
+            document.getElementById('btnNext').style.display=currentStep<4?'inline-flex':'none';
+            document.getElementById('btnSubmit').style.display=currentStep===4?'inline-flex':'none';
+        }
+        function selectIns(type,el){
+            selectedInsurance=type;
+            document.querySelectorAll('.ins-card').forEach(c=>c.classList.remove('selected'));
+            el.classList.add('selected');
+            updateSummary();
+        }
+        function updateSummary(){
+            const price=parseInt(document.getElementById('cPrice').value)||0;
+            const rates={basic:0.002,standard:0.004,wide:0.008};
+            const insPrem=Math.round(price*rates[selectedInsurance]);
+            const fee=Math.round(price*0.04);
+            document.getElementById('insBasicRate').textContent='₺'+(Math.round(price*0.002)).toLocaleString('tr-TR');
+            document.getElementById('insStdRate').textContent='₺'+(Math.round(price*0.004)).toLocaleString('tr-TR');
+            document.getElementById('insWideRate').textContent='₺'+(Math.round(price*0.008)).toLocaleString('tr-TR');
+            document.getElementById('sumType').textContent=document.getElementById('cType').value+' | '+document.getElementById('cWeight').value+' Ton';
+            document.getElementById('sumRoute').textContent=document.getElementById('cFrom').value+' → '+document.getElementById('cTo').value;
+            document.getElementById('sumWeight').textContent=document.getElementById('cWeight').value+' Ton';
+            document.getElementById('sumPrice').textContent='₺'+price.toLocaleString('tr-TR');
+            document.getElementById('sumIns').textContent='₺'+insPrem.toLocaleString('tr-TR');
+            document.getElementById('sumFee').textContent='₺'+fee.toLocaleString('tr-TR');
+            document.getElementById('sumTotal').textContent='₺'+(price+insPrem+fee).toLocaleString('tr-TR');
+        }
+        function submitLoad(){
+            const newLoad={
+                id:Date.now(), shipperId:currentUser.id, shipperName:currentUser.name,
+                company:currentUser.company||'', from:document.getElementById('cFrom').value,
+                to:document.getElementById('cTo').value, loadType:document.getElementById('cType').value,
+                weight:parseInt(document.getElementById('cWeight').value),
+                price:parseInt(document.getElementById('cPrice').value),
+                date:document.getElementById('cDate').value, status:'active',
+                description:document.getElementById('cDesc').value, insurance:selectedInsurance,
+                createdAt:new Date().toISOString().split('T')[0]
+            };
+            const loads=getLoads(); loads.push(newLoad);
+            localStorage.setItem('tirbul_loads',JSON.stringify(loads));
+            showToast('🎉 Yük ilanınız yayınlandı! Teklifler gelmeye başlayacak.');
+            currentStep=1; updateFormUI(); document.getElementById('createForm').reset();
+            updateStats(); renderRecentLoads(); showPage('loads');
+        }
+
+        function showPage(p){
+            document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+            document.getElementById('page-'+p).classList.add('active');
+            document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+            const idx={dashboard:0,loads:1,create:2,offers:3};
+            document.querySelectorAll('.menu-item')[idx[p]].classList.add('active');
+            const titles={dashboard:'Kontrol Paneli',loads:'Yüklerim',create:'Yeni Yük İlanı',offers:'Gelen Teklifler'};
+            document.getElementById('pageTitle').textContent=titles[p];
+            if(p==='loads') renderAllLoads();
+            if(p==='offers') renderOffers();
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        }
+        function toggleSidebar(){
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        function logout(){
+            localStorage.removeItem('tirbul_current_user');
+            window.location.href='register.html';
+        }
+        function showToast(msg,type='success'){
+            const t=document.getElementById('toast');
+            t.textContent=(type==='success'?'✅ ':'❌ ')+msg;
+            t.className='toast '+type+' show';
+            setTimeout(()=>t.classList.remove('show'),3500);
+        }
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TırBul — Giriş Yap / Kayıt Ol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary:#FF6B35;--primary-light:#FFB347;--bg:#0a0f1e;--bg-light:#111827;--surface:rgba(17,24,39,0.7);--text:#f0f0f0;--text-sec:#9ca3af;--success:#10b981;--danger:#ef4444;--border:rgba(255,255,255,0.08);--radius:16px;--radius-sm:10px}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;overflow-x:hidden}
+        body::before{content:'';position:fixed;top:-200px;right:-200px;width:500px;height:500px;background:var(--primary);border-radius:50%;filter:blur(120px);opacity:0.08;z-index:0}
+        body::after{content:'';position:fixed;bottom:-200px;left:-200px;width:400px;height:400px;background:#6366f1;border-radius:50%;filter:blur(120px);opacity:0.06;z-index:0}
+        a{text-decoration:none;color:inherit}
+        .logo{text-align:center;margin-bottom:2rem;position:relative;z-index:1}
+        .logo a{font-size:2rem;font-weight:800}
+        .logo span:first-child{color:var(--primary)}
+        .auth-card{width:100%;max-width:480px;background:var(--surface);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem;position:relative;z-index:1}
+        .tabs{display:flex;gap:0;margin-bottom:2rem;border-radius:var(--radius-sm);overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid var(--border)}
+        .tab{flex:1;padding:0.85rem;text-align:center;font-weight:600;font-size:0.95rem;cursor:pointer;transition:all 0.3s;background:transparent;border:none;color:var(--text-sec);font-family:inherit}
+        .tab.active{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}
+        .tab:hover:not(.active){color:var(--text)}
+        .type-select{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+        .type-card{padding:1.5rem 1rem;text-align:center;border-radius:var(--radius-sm);border:2px solid var(--border);cursor:pointer;transition:all 0.3s;background:rgba(255,255,255,0.02)}
+        .type-card:hover{border-color:rgba(255,107,53,0.3)}
+        .type-card.selected{border-color:var(--primary);background:rgba(255,107,53,0.05)}
+        .type-card .icon{font-size:2.5rem;margin-bottom:0.5rem}
+        .type-card h3{font-size:0.95rem;font-weight:700;margin-bottom:0.3rem}
+        .type-card p{font-size:0.75rem;color:var(--text-sec);line-height:1.4}
+        .form-group{margin-bottom:1.2rem}
+        .form-group label{display:block;font-size:0.8rem;color:var(--text-sec);margin-bottom:0.4rem;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+        .form-group input,.form-group select{width:100%;padding:0.75rem 1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:0.95rem;transition:all 0.2s;outline:none}
+        .form-group input:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,107,53,0.1)}
+        .form-group input.error{border-color:var(--danger)}
+        .form-group .error-text{color:var(--danger);font-size:0.75rem;margin-top:0.3rem;display:none}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .btn{width:100%;padding:0.9rem;border-radius:var(--radius-sm);font-weight:700;font-size:1rem;cursor:pointer;border:none;font-family:inherit;transition:all 0.3s}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,107,53,0.35)}
+        .btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+        .divider{text-align:center;margin:1.5rem 0;color:var(--text-sec);font-size:0.85rem;position:relative}
+        .divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border)}
+        .divider::before{left:0}
+        .divider::after{right:0}
+        .check-group{display:flex;align-items:flex-start;gap:0.6rem;margin:1.2rem 0}
+        .check-group input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary);margin-top:2px;flex-shrink:0}
+        .check-group label{font-size:0.8rem;color:var(--text-sec);line-height:1.5;cursor:pointer}
+        .check-group a{color:var(--primary)}
+        .link-text{text-align:center;margin-top:1.2rem;font-size:0.85rem;color:var(--text-sec)}
+        .link-text a{color:var(--primary);font-weight:600}
+        .carrier-fields{display:none}
+        .carrier-fields.visible{display:block}
+        /* TOAST */
+        .toast{position:fixed;top:1.5rem;right:1.5rem;padding:1rem 1.5rem;border-radius:var(--radius-sm);color:#fff;font-weight:600;font-size:0.9rem;z-index:9999;transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);display:flex;align-items:center;gap:0.5rem}
+        .toast.show{transform:translateX(0)}
+        .toast.success{background:linear-gradient(135deg,#059669,#10b981)}
+        .toast.error{background:linear-gradient(135deg,#dc2626,#ef4444)}
+        .demo-info{margin-top:1.5rem;padding:1rem;border-radius:var(--radius-sm);background:rgba(255,107,53,0.05);border:1px solid rgba(255,107,53,0.15);font-size:0.8rem;color:var(--text-sec)}
+        .demo-info strong{color:var(--primary);display:block;margin-bottom:0.3rem}
+        @media(max-width:500px){.auth-card{padding:1.5rem}.form-row{grid-template-columns:1fr}.type-select{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="logo"><a href="index.html"><span>Tır</span><span>Bul</span></a></div>
+
+    <div class="auth-card">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('register')">Kayıt Ol</button>
+            <button class="tab" onclick="switchTab('login')">Giriş Yap</button>
+        </div>
+
+        <!-- REGISTER -->
+        <form id="registerForm" onsubmit="handleRegister(event)">
+            <div class="type-select">
+                <div class="type-card selected" onclick="selectType('shipper',this)">
+                    <div class="icon">🏭</div>
+                    <h3>Yük Sahibiyim</h3>
+                    <p>Fabrika, işletme veya sanayici olarak yük göndermek istiyorum</p>
+                </div>
+                <div class="type-card" onclick="selectType('carrier',this)">
+                    <div class="icon">🚛</div>
+                    <h3>Nakliyeciyim</h3>
+                    <p>Tır veya kamyon sahibi olarak yük taşımak istiyorum</p>
+                </div>
+            </div>
+            <input type="hidden" id="regType" value="shipper">
+
+            <div class="form-group">
+                <label>Ad Soyad</label>
+                <input type="text" id="regName" placeholder="Adınız Soyadınız" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Telefon</label>
+                    <input type="tel" id="regPhone" placeholder="5XX XXX XX XX" required>
+                </div>
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <input type="email" id="regEmail" placeholder="ornek@mail.com">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Şifre</label>
+                    <input type="password" id="regPass" placeholder="En az 6 karakter" required>
+                </div>
+                <div class="form-group">
+                    <label>Şifre Tekrar</label>
+                    <input type="password" id="regPass2" placeholder="Şifreyi tekrar girin" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Şehir</label>
+                    <select id="regCity" required>
+                        <option value="">Seçiniz</option>
+                        <option value="Sivas" selected>Sivas</option>
+                        <option value="Kayseri">Kayseri</option>
+                        <option value="Tokat">Tokat</option>
+                        <option value="Yozgat">Yozgat</option>
+                        <option value="Amasya">Amasya</option>
+                        <option value="İstanbul">İstanbul</option>
+                        <option value="Ankara">Ankara</option>
+                        <option value="İzmir">İzmir</option>
+                        <option value="Bursa">Bursa</option>
+                        <option value="Konya">Konya</option>
+                        <option value="Trabzon">Trabzon</option>
+                        <option value="Erzurum">Erzurum</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Firma Adı</label>
+                    <input type="text" id="regCompany" placeholder="İşletme adınız">
+                </div>
+            </div>
+
+            <!-- Carrier extra fields -->
+            <div class="carrier-fields" id="carrierFields">
+                <div class="divider">Araç Bilgileri</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Araç Tipi</label>
+                        <select id="regVehicle"><option>Tır</option><option>Kamyon</option><option>Kamyonet</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Plaka</label>
+                        <input type="text" id="regPlate" placeholder="58 XX 123">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kapasite (Ton)</label>
+                        <input type="number" id="regCapacity" placeholder="25">
+                    </div>
+                    <div class="form-group">
+                        <label>Yetki Belgesi No</label>
+                        <input type="text" id="regAuth" placeholder="K1-XXXXX">
+                    </div>
+                </div>
+            </div>
+
+            <div class="check-group">
+                <input type="checkbox" id="regTerms" required>
+                <label for="regTerms"><a href="#">Kullanım şartlarını</a> ve <a href="#">KVKK aydınlatma metnini</a> okudum, kabul ediyorum.</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+        </form>
+
+        <!-- LOGIN -->
+        <form id="loginForm" style="display:none" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Telefon Numarası</label>
+                <input type="tel" id="loginPhone" placeholder="5XX XXX XX XX" required>
+            </div>
+            <div class="form-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPass" placeholder="Şifreniz" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Giriş Yap</button>
+            <div class="link-text" style="margin-top:1rem"><a href="#">Şifremi Unuttum</a></div>
+
+            <div class="demo-info">
+                <strong>🔑 Demo Giriş Bilgileri:</strong>
+                Yük Sahibi: 5321234567 / demo123<br>
+                Nakliyeci (Altın): 5339876543 / demo123<br>
+                Nakliyeci (Elmas): 5062223344 / demo123
+            </div>
+        </form>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let selectedType = 'shipper';
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach((t,i) => {
+                t.classList.toggle('active', (tab==='register' && i===0)||(tab==='login' && i===1));
+            });
+            document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+            document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+        }
+
+        function selectType(type, el) {
+            selectedType = type;
+            document.getElementById('regType').value = type;
+            document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('carrierFields').classList.toggle('visible', type==='carrier');
+        }
+
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            t.textContent = (type==='success'?'✅ ':'❌ ') + msg;
+            t.className = 'toast ' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim().replace(/\s/g,'');
+            const email = document.getElementById('regEmail').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const pass2 = document.getElementById('regPass2').value;
+            const city = document.getElementById('regCity').value;
+            const company = document.getElementById('regCompany').value.trim();
+
+            if (!name || !phone || !pass || !city) return showToast('Tüm alanları doldurun.','error');
+            if (pass.length < 6) return showToast('Şifre en az 6 karakter olmalı.','error');
+            if (pass !== pass2) return showToast('Şifreler eşleşmiyor.','error');
+            if (!document.getElementById('regTerms').checked) return showToast('Kullanım şartlarını kabul edin.','error');
+
+            const users = JSON.parse(localStorage.getItem('tirbul_users')||'[]');
+            if (users.find(u => u.phone === phone)) return showToast('Bu telefon numarası zaten kayıtlı.','error');
+
+            const newUser = { id: Date.now(), name, phone, email, password: pass, type: selectedType, city, company };
+            if (selectedType === 'carrier') {
+                newUser.vehicleType = document.getElementById('regVehicle').value;
+                newUser.plate = document.getElementById('regPlate').value;
+                newUser.capacity = parseInt(document.getElementById('regCapacity').value)||0;
+                newUser.authDoc = document.getElementById('regAuth').value;
+                newUser.rating = 0; newUser.deliveries = 0; newUser.badge = 'bronze'; newUser.damageRate = 0;
+            }
+            users.push(newUser);
+            localStorage.setItem('tirbul_users', JSON.stringify(users));
+            localStorage.setItem('tirbul_current_user', JSON.stringify(newUser));
+            showToast('Kayıt başarılı! Yönlendiriliyorsunuz...');
+            setTimeout(() => {
+                window.location.href = selectedType==='shipper'?'dashboard-shipper.html':'dashboard-carrier.html';
+            }, 1500);
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value.trim().replace(/\s/g,'');
+            const pass = document.getElementById('loginPass').value;
+            const users = JSON.parse(localStorage.getItem('tirbul_users')||'[]');
+            const user = users.find(u => u.phone === phone && u.password === pass);
+            if (!user) return showToast('Telefon veya şifre hatalı.','error');
+            localStorage.setItem('tirbul_current_user', JSON.stringify(user));
+            showToast('Giriş başarılı!');
+            setTimeout(() => {
+                window.location.href = user.type==='shipper'?'dashboard-shipper.html':'dashboard-carrier.html';
+            }, 1000);
+        }
+
+        // Auto redirect if already logged in
+        const cur = localStorage.getItem('tirbul_current_user');
+        if (cur) {
+            const u = JSON.parse(cur);
+            window.location.href = u.type==='shipper'?'dashboard-shipper.html':'dashboard-carrier.html';
+        }
+    </script>
+</body>
+</html>

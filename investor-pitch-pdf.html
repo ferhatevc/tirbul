@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TırBul — Yatırımcı Sunumu (PDF)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary:#FF6B35;--bg:#0a0f1e;--surface:#111827;--text:#f0f0f0;--text-sec:#9ca3af;--success:#10b981;--danger:#ef4444;--border:rgba(255,255,255,0.1)}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text)}
+        .page{width:100%;min-height:100vh;padding:3rem 4rem;display:flex;flex-direction:column;justify-content:center;position:relative;page-break-after:always;overflow:hidden}
+        .page::before{content:'';position:absolute;top:-150px;right:-150px;width:400px;height:400px;background:var(--primary);border-radius:50%;filter:blur(120px);opacity:0.07}
+        .page:nth-child(even)::before{background:#6366f1;left:-150px;right:auto;bottom:-150px;top:auto}
+        .tag{display:inline-block;padding:0.35rem 0.9rem;border-radius:50px;font-size:0.75rem;font-weight:600;background:rgba(255,107,53,0.12);border:1px solid rgba(255,107,53,0.25);color:#FFB347;margin-bottom:1.2rem}
+        h1{font-size:2.8rem;font-weight:900;line-height:1.15;margin-bottom:1rem}
+        h2{font-size:2rem;font-weight:800;line-height:1.2;margin-bottom:0.8rem}
+        h3{font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
+        .gradient{background:linear-gradient(135deg,#FF6B35,#FFB347);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .sub{font-size:1.05rem;color:var(--text-sec);line-height:1.6;max-width:650px}
+        .cards{display:grid;gap:1rem;margin-top:1.5rem}
+        .c2{grid-template-columns:1fr 1fr}.c3{grid-template-columns:1fr 1fr 1fr}.c4{grid-template-columns:1fr 1fr 1fr 1fr}
+        .card{padding:1.3rem;border-radius:14px;background:rgba(17,24,39,0.5);border:1px solid var(--border)}
+        .card-icon{font-size:1.8rem;margin-bottom:0.5rem}
+        .card h4{font-size:0.9rem;font-weight:700;margin-bottom:0.3rem}
+        .card p{font-size:0.78rem;color:var(--text-sec);line-height:1.5}
+        .problem{display:flex;align-items:center;gap:1rem;padding:1.2rem;border-radius:14px;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.12);margin-bottom:0.8rem}
+        .problem .ic{font-size:2rem;flex-shrink:0}
+        .problem h4{font-size:0.95rem;font-weight:700;margin-bottom:0.15rem}
+        .problem p{font-size:0.78rem;color:var(--text-sec)}
+        table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:0.8rem}
+        th{padding:0.6rem 0.8rem;text-align:left;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,0.03);color:var(--text-sec)}
+        td{padding:0.55rem 0.8rem;border-top:1px solid var(--border)}
+        .ch{color:var(--success);font-weight:700}.cr{color:var(--danger);font-weight:700}
+        .hl td{background:rgba(255,107,53,0.03)}
+        .stat{text-align:center}
+        .stat .num{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#FF6B35,#FFB347);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .stat .lbl{font-size:0.8rem;color:var(--text-sec);margin-top:0.15rem}
+        .bar-row{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.7rem}
+        .bar-lbl{width:90px;font-size:0.75rem;color:var(--text-sec);text-align:right;flex-shrink:0}
+        .bar-track{flex:1;height:26px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden}
+        .bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 0.6rem;font-size:0.7rem;font-weight:700;color:#fff}
+        .bar-amt{width:70px;font-size:0.75rem;color:var(--text-sec);flex-shrink:0}
+        .roi-box{padding:1.5rem;border-radius:14px;border:2px solid rgba(255,107,53,0.25);background:rgba(255,107,53,0.03);margin-top:1.5rem}
+        .roi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;text-align:center}
+        .roi-grid .val{font-size:1.8rem;font-weight:900;color:var(--success)}
+        .roi-grid .lbl{font-size:0.75rem;color:var(--text-sec);margin-top:0.15rem}
+        .timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:1.5rem;position:relative}
+        .timeline::before{content:'';position:absolute;top:18px;left:10%;right:10%;height:3px;background:linear-gradient(90deg,#FF6B35,#FFB347,#10b981)}
+        .tl-item{text-align:center;position:relative;z-index:1}
+        .tl-dot{width:36px;height:36px;border-radius:50%;margin:0 auto 0.8rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.8rem;color:#fff;border:3px solid var(--bg)}
+        .tl-item h4{font-size:0.8rem;font-weight:700;margin-bottom:0.2rem}
+        .tl-item p{font-size:0.7rem;color:var(--text-sec);line-height:1.3}
+        .split{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;margin-top:1.5rem}
+        .strength{display:flex;gap:0.75rem;margin-bottom:1rem}
+        .str-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#FF6B35,#FFB347);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.8rem;color:#fff;flex-shrink:0}
+        .strength h4{font-size:0.85rem;font-weight:700;margin-bottom:0.1rem}
+        .strength p{font-size:0.75rem;color:var(--text-sec)}
+        .ready{display:inline-flex;padding:0.2rem 0.5rem;border-radius:50px;font-size:0.65rem;font-weight:700;background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.2)}
+        .logo{font-size:1.8rem;font-weight:900}.logo span:first-child{color:#FF6B35}.logo span:last-child{color:#f0f0f0}
+        .footer-info{position:absolute;bottom:1.5rem;right:2rem;font-size:0.65rem;color:rgba(255,255,255,0.2)}
+        .center{text-align:center}
+        .quote{padding:1rem 1.5rem;border-left:3px solid var(--primary);background:rgba(255,107,53,0.03);border-radius:0 10px 10px 0;margin-top:1rem;font-style:italic;color:var(--text-sec);font-size:0.85rem;line-height:1.6}
+        @media print{
+            body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+            .page{page-break-after:always;page-break-inside:avoid}
+            .no-print{display:none}
+        }
+        @media(max-width:700px){
+            .page{padding:2rem 1.5rem}
+            h1{font-size:1.8rem}h2{font-size:1.4rem}
+            .c2,.c3,.c4{grid-template-columns:1fr}
+            .split{grid-template-columns:1fr}
+            .timeline{grid-template-columns:1fr 1fr;gap:0.5rem}
+            .roi-grid{grid-template-columns:1fr}
+        }
+        .print-btn{position:fixed;bottom:2rem;right:2rem;z-index:999;padding:1rem 2rem;border-radius:14px;background:linear-gradient(135deg,#FF6B35,#FFB347);color:#fff;font-size:1rem;font-weight:800;border:none;cursor:pointer;font-family:inherit;box-shadow:0 8px 30px rgba(255,107,53,0.4)}
+        .print-btn:hover{transform:scale(1.05)}
+    </style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">📄 PDF Olarak Kaydet</button>
+
+<!-- 1. KAPAK -->
+<div class="page center">
+    <div class="tag">🚛 Yatırımcı Sunumu — Haziran 2026</div>
+    <h1><span class="gradient">TırBul</span></h1>
+    <p class="sub" style="margin:0 auto 1.5rem;font-size:1.3rem">Türkiye'nin İlk<br><strong>Güvenli Taşımacılık Platformu</strong></p>
+    <div style="display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0">
+        <span style="color:var(--text-sec)">🛡️ Otomatik Sigorta</span>
+        <span style="color:var(--text-sec)">⭐ Doğrulanmış Şoförler</span>
+        <span style="color:var(--text-sec)">📸 Fotoğraflı Teslimat</span>
+    </div>
+    <p style="margin-top:2rem;font-size:0.9rem;color:var(--text-sec)">Yatırım Talebi: <strong style="color:#FF6B35">$25.000</strong></p>
+    <div class="footer-info">TırBul — Sivas, Türkiye | Slayt 1/12</div>
+</div>
+
+<!-- 2. PROBLEM -->
+<div class="page">
+    <div class="tag">📌 Sorun</div>
+    <h2>Anadolu'da Her Sanayicinin Yaşadığı<br><span class="gradient">3 Büyük Sorun</span></h2>
+    <div style="margin-top:1.5rem">
+        <div class="problem"><div class="ic">😰</div><div><h4>"Güvenilir tırcı bulamıyorum"</h4><p>Yükü kime vereceğini bilemiyor. Geçmişi, belgesi belirsiz. Her seferinde risk.</p></div></div>
+        <div class="problem"><div class="ic">🚫</div><div><h4>"Tırcılar sigorta yaptırmıyor"</h4><p>Hasar olduğunda tüm zarar sanayicinin üstünde. Sigorta ayrı bir iş.</p></div></div>
+        <div class="problem"><div class="ic">💸</div><div><h4>"Değnekçiler komisyon yiyor"</h4><p>Aracılar gereksiz komisyon alıyor. Şeffaflık yok, fiyatlar şişirilmiş.</p></div></div>
+    </div>
+    <div class="quote">"Bu sorun sadece Sivas'a özel değil. Türkiye'de karayolu taşımacılığının %90'ında aynı sorun var. Ama kimse Anadolu'dan başlamıyor."</div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 2/12</div>
+</div>
+
+<!-- 3. PAZAR -->
+<div class="page">
+    <div class="tag">📊 Pazar Büyüklüğü</div>
+    <h2>Devasa Bir Pazar, <span class="gradient">Kimsenin Girmediği Alan</span></h2>
+    <div class="cards c3" style="margin-top:1.5rem">
+        <div class="card stat"><div class="num">$100B</div><div class="lbl">Türkiye Lojistik Pazarı</div></div>
+        <div class="card stat"><div class="num">%90</div><div class="lbl">Karayolu Taşımacılığı</div></div>
+        <div class="card stat"><div class="num">&lt;%5</div><div class="lbl">Dijitalleşme Oranı</div></div>
+    </div>
+    <div class="split">
+        <div>
+            <h3>📍 Sivas Başlangıç Pazarı</h3>
+            <p style="font-size:0.85rem;color:var(--text-sec);line-height:2">✅ OSB: 370+ firma, %99 doluluk<br>✅ 2024 ihracatı: $82M (%17 büyüme)<br>✅ Yılda 30+ yeni fabrika<br>✅ Tahmini nakliye hacmi: 500M+ ₺/yıl</p>
+        </div>
+        <div>
+            <h3>🗺️ Genişleme Yol Haritası</h3>
+            <p style="font-size:0.85rem;color:var(--text-sec);line-height:2">📍 1. Yıl: Sivas + çevre → ~500M₺<br>📍 2. Yıl: İç Anadolu → ~5 Milyar₺<br>📍 3. Yıl: Türkiye geneli → ~50+ Milyar₺</p>
+        </div>
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 3/12</div>
+</div>
+
+<!-- 4. ÇÖZÜM -->
+<div class="page">
+    <div class="tag">💡 Çözüm</div>
+    <h2>TırBul = Eşleştirme + <span class="gradient">Güvenli Taşımacılık Garantisi</span></h2>
+    <div class="cards c2">
+        <div class="card" style="border-color:rgba(255,107,53,0.2)"><div class="card-icon">🛡️</div><h4>Otomatik Sigorta</h4><p>Her taşımaya sigorta dahil. Sanayici ayrıca uğraşmıyor. Tek tıkla sigortalı taşıma.</p></div>
+        <div class="card" style="border-color:rgba(255,179,71,0.2)"><div class="card-icon">⭐</div><h4>Şoför Doğrulama + Rozet</h4><p>3 katmanlı doğrulama. Rozet sistemi: 🥉Bronz → 🥈Gümüş → 🥇Altın → 💎Elmas</p></div>
+        <div class="card" style="border-color:rgba(16,185,129,0.2)"><div class="card-icon">📸</div><h4>Fotoğraflı Teslimat</h4><p>Yükleme ve teslimde fotoğraf kanıtı + GPS kaydı. Hasar anlaşmazlığı tarih olur.</p></div>
+        <div class="card" style="border-color:rgba(99,102,241,0.2)"><div class="card-icon">💰</div><h4>Şeffaf Fiyat</h4><p>Değnekçiye komisyon yok. Fiyatı yük sahibi belirler, nakliyeci teklif verir.</p></div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;padding:1rem;border:1px solid rgba(255,107,53,0.15);border-radius:12px;background:rgba(255,107,53,0.02)">
+        <strong>Tek cümleyle:</strong> "Sanayici <span style="color:#FF6B35;font-weight:800">'yük ver'</span> der, gerisini biz yaparız."
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 4/12</div>
+</div>
+
+<!-- 5. ÜRÜN HAZIR -->
+<div class="page">
+    <div class="tag">✅ Ürün Durumu</div>
+    <h2>Bu Bir Fikir Değil, <span class="gradient">Ürün Hazır ve Çalışıyor</span></h2>
+    <p class="sub">Yatırım istemeden ÖNCE platformu geliştirdik. Çalışan demo mevcuttur.</p>
+    <div class="cards c3">
+        <div class="card center"><div style="font-size:2rem">🏠</div><h4>Ana Sayfa</h4><p>Arama, istatistik, özellikler</p><div class="ready" style="margin-top:0.5rem">✅ Tamamlandı</div></div>
+        <div class="card center"><div style="font-size:2rem">🔐</div><h4>Kayıt / Giriş</h4><p>Yük sahibi & nakliyeci</p><div class="ready" style="margin-top:0.5rem">✅ Tamamlandı</div></div>
+        <div class="card center"><div style="font-size:2rem">📦</div><h4>Yük Sahibi Paneli</h4><p>İlan verme, teklif yönetimi</p><div class="ready" style="margin-top:0.5rem">✅ Tamamlandı</div></div>
+        <div class="card center"><div style="font-size:2rem">🚛</div><h4>Nakliyeci Paneli</h4><p>Yük arama, teklif, profil</p><div class="ready" style="margin-top:0.5rem">✅ Tamamlandı</div></div>
+        <div class="card center"><div style="font-size:2rem">🛡️</div><h4>Sigorta Sistemi</h4><p>3 teminat, otomatik hesaplama</p><div class="ready" style="margin-top:0.5rem">✅ Tamamlandı</div></div>
+        <div class="card center"><div style="font-size:2rem">⭐</div><h4>Rozet Sistemi</h4><p>Bronz → Gümüş → Altın → Elmas</p><div class="ready" style="margin-top:0.5rem">✅ Tamamlandı</div></div>
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 5/12</div>
+</div>
+
+<!-- 6. RAKİPLER -->
+<div class="page">
+    <div class="tag">⚔️ Rekabet Avantajı</div>
+    <h2>Rakipler Ne Yapıyor, <span class="gradient">Biz Ne Farklı Yapıyoruz?</span></h2>
+    <div style="border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-top:1rem">
+        <table>
+            <thead><tr><th>Özellik</th><th>Değnekçi</th><th>Tırport ($2M)</th><th>Kamion ($2.5M)</th><th style="color:#FF6B35">TırBul ($25K)</th></tr></thead>
+            <tbody>
+                <tr><td>Yük eşleştirme</td><td class="ch">✅</td><td class="ch">✅</td><td class="ch">✅</td><td class="ch">✅</td></tr>
+                <tr class="hl"><td><strong>Otomatik sigorta</strong></td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td class="ch" style="font-size:1rem">✅</td></tr>
+                <tr class="hl"><td><strong>Şoför doğrulama + rozet</strong></td><td class="cr">❌</td><td style="color:#f59e0b">Kısmen</td><td style="color:#f59e0b">Kısmen</td><td class="ch" style="font-size:1rem">✅</td></tr>
+                <tr class="hl"><td><strong>Fotoğraflı teslimat</strong></td><td class="cr">❌</td><td class="cr">❌</td><td class="cr">❌</td><td class="ch" style="font-size:1rem">✅</td></tr>
+                <tr><td>GPS takip</td><td class="cr">❌</td><td class="ch">✅</td><td class="ch">✅</td><td class="ch">✅</td></tr>
+                <tr><td>Anadolu odağı</td><td class="ch">✅</td><td class="cr">❌</td><td class="cr">❌</td><td class="ch">✅</td></tr>
+                <tr><td>KOBİ dostu</td><td style="color:#f59e0b">Kısmen</td><td class="cr">❌</td><td class="cr">❌</td><td class="ch">✅</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="quote">"Rakipler milyonlarca dolar harcadı ama kimse sigorta + doğrulama + fotoğraflı teslimat paketini sunmuyor. Ve kimse Anadolu'ya odaklanmıyor."</div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 6/12</div>
+</div>
+
+<!-- 7. GELİR MODELİ -->
+<div class="page">
+    <div class="tag">💰 Gelir Modeli</div>
+    <h2>Para <span class="gradient">Nereden Gelecek?</span></h2>
+    <div class="cards c4">
+        <div class="card center" style="border-color:rgba(255,107,53,0.2)"><div style="font-size:1.5rem">📋</div><h4>Hizmet Bedeli</h4><p style="font-size:1.3rem;font-weight:800;color:#FF6B35;margin:0.3rem 0">%4</p><p>Her taşımadan</p></div>
+        <div class="card center" style="border-color:rgba(16,185,129,0.2)"><div style="font-size:1.5rem">🛡️</div><h4>Sigorta Kom.</h4><p style="font-size:1.3rem;font-weight:800;color:var(--success);margin:0.3rem 0">%20-30</p><p>Toplu anlaşma farkı</p></div>
+        <div class="card center" style="border-color:rgba(99,102,241,0.2)"><div style="font-size:1.5rem">⭐</div><h4>Premium</h4><p style="font-size:1.3rem;font-weight:800;color:#818cf8;margin:0.3rem 0">₺500-2K</p><p>Aylık üyelik</p></div>
+        <div class="card center" style="border-color:rgba(245,158,11,0.2)"><div style="font-size:1.5rem">📢</div><h4>Reklam</h4><p style="font-size:1.3rem;font-weight:800;color:#f59e0b;margin:0.3rem 0">Ek</p><p>Sektör reklamları</p></div>
+    </div>
+    <div class="card" style="margin-top:1.5rem;border-color:rgba(255,107,53,0.15);background:rgba(255,107,53,0.02)">
+        <h4 style="text-align:center;margin-bottom:0.75rem">📐 Örnek: 30.000₺ Taşıma</h4>
+        <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:0.5rem;text-align:center">
+            <div><div style="font-size:0.65rem;color:var(--text-sec)">Taşıma Bedeli</div><div style="font-size:1.1rem;font-weight:800">₺30.000</div></div>
+            <div style="font-size:1.2rem;color:var(--text-sec)">→</div>
+            <div><div style="font-size:0.65rem;color:var(--text-sec)">Hizmet (%4)</div><div style="font-size:1.1rem;font-weight:800;color:#FF6B35">₺1.200</div></div>
+            <div style="font-size:1.2rem;color:var(--text-sec)">+</div>
+            <div><div style="font-size:0.65rem;color:var(--text-sec)">Sigorta Kom.</div><div style="font-size:1.1rem;font-weight:800;color:var(--success)">₺400</div></div>
+            <div style="font-size:1.2rem;color:var(--text-sec)">=</div>
+            <div><div style="font-size:0.65rem;color:var(--text-sec)">Platform Geliri</div><div style="font-size:1.1rem;font-weight:800;color:#FFB347">₺1.600</div></div>
+        </div>
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 7/12</div>
+</div>
+
+<!-- 8. PROJEKSİYON -->
+<div class="page">
+    <div class="tag">📈 12 Aylık Projeksiyon</div>
+    <h2>Ayda 200 Eşleşme ile <span class="gradient">Aylık 290.000₺ Gelir</span></h2>
+    <div class="split">
+        <div>
+            <h3 style="color:var(--success)">Gelirler — 290.000₺/ay</h3>
+            <div style="margin-top:0.75rem">
+                <div class="bar-row"><div class="bar-lbl">Hizmet Bedeli</div><div class="bar-track"><div class="bar-fill" style="width:69%;background:linear-gradient(90deg,#FF6B35,#FFB347)">%69</div></div><div class="bar-amt">200.000₺</div></div>
+                <div class="bar-row"><div class="bar-lbl">Sigorta Kom.</div><div class="bar-track"><div class="bar-fill" style="width:21%;background:linear-gradient(90deg,#059669,#10b981)">%21</div></div><div class="bar-amt">60.000₺</div></div>
+                <div class="bar-row"><div class="bar-lbl">Premium</div><div class="bar-track"><div class="bar-fill" style="width:10%;background:linear-gradient(90deg,#6366f1,#818cf8)">%10</div></div><div class="bar-amt">30.000₺</div></div>
+            </div>
+        </div>
+        <div>
+            <h3 style="color:var(--danger)">Giderler — 185.000₺/ay</h3>
+            <div style="margin-top:0.75rem">
+                <div class="bar-row"><div class="bar-lbl">Sigorta Prim</div><div class="bar-track"><div class="bar-fill" style="width:43%;background:linear-gradient(90deg,#dc2626,#ef4444)">%43</div></div><div class="bar-amt">80.000₺</div></div>
+                <div class="bar-row"><div class="bar-lbl">Personel</div><div class="bar-track"><div class="bar-fill" style="width:32%;background:linear-gradient(90deg,#b91c1c,#dc2626)">%32</div></div><div class="bar-amt">60.000₺</div></div>
+                <div class="bar-row"><div class="bar-lbl">İşletme</div><div class="bar-track"><div class="bar-fill" style="width:14%;background:linear-gradient(90deg,#991b1b,#b91c1c)">%14</div></div><div class="bar-amt">25.000₺</div></div>
+                <div class="bar-row"><div class="bar-lbl">Pazarlama</div><div class="bar-track"><div class="bar-fill" style="width:11%;background:linear-gradient(90deg,#7f1d1d,#991b1b)">%11</div></div><div class="bar-amt">20.000₺</div></div>
+            </div>
+        </div>
+    </div>
+    <div class="roi-box">
+        <div class="roi-grid">
+            <div><div class="val" style="color:#FF6B35">290K₺</div><div class="lbl">Aylık Gelir</div></div>
+            <div><div class="val" style="color:var(--danger)">185K₺</div><div class="lbl">Aylık Gider</div></div>
+            <div><div class="val">105K₺</div><div class="lbl">Aylık Net Kâr (~$3.000)</div></div>
+        </div>
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 8/12</div>
+</div>
+
+<!-- 9. YATIRIM -->
+<div class="page">
+    <div class="tag">💵 Yatırım Talebi</div>
+    <h2><span class="gradient">25.000$</span> ile 12 Ayda Kâra Geçiş</h2>
+    <div style="margin-top:1.5rem">
+        <div class="bar-row"><div class="bar-lbl">Ürün Geliştirme</div><div class="bar-track"><div class="bar-fill" style="width:30%;background:linear-gradient(90deg,#FF6B35,#FFB347)">$7.500</div></div><div class="bar-amt">%30</div></div>
+        <div class="bar-row"><div class="bar-lbl">Pazarlama</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:linear-gradient(90deg,#6366f1,#818cf8)">$6.250</div></div><div class="bar-amt">%25</div></div>
+        <div class="bar-row"><div class="bar-lbl">İşletme</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:linear-gradient(90deg,#059669,#10b981)">$5.000</div></div><div class="bar-amt">%20</div></div>
+        <div class="bar-row"><div class="bar-lbl">Yasal + Sigorta</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:linear-gradient(90deg,#d97706,#f59e0b)">$3.750</div></div><div class="bar-amt">%15</div></div>
+        <div class="bar-row"><div class="bar-lbl">Yedek Fon</div><div class="bar-track"><div class="bar-fill" style="width:10%;background:linear-gradient(90deg,#475569,#64748b)">$2.500</div></div><div class="bar-amt">%10</div></div>
+    </div>
+    <div class="timeline">
+        <div class="tl-item"><div class="tl-dot" style="background:#FF6B35">Q1</div><h4>Ay 1-3</h4><p>Şirket kurulumu<br>Mobil uygulama<br>İlk 100 kullanıcı</p></div>
+        <div class="tl-item"><div class="tl-dot" style="background:#6366f1">Q2</div><h4>Ay 4-6</h4><p>500 kullanıcı<br>50+ eşleşme/ay<br>İlk gelirler</p></div>
+        <div class="tl-item"><div class="tl-dot" style="background:#f59e0b">Q3</div><h4>Ay 7-9</h4><p>1.000 kullanıcı<br>150+ eşleşme/ay<br>Başabaş noktası</p></div>
+        <div class="tl-item"><div class="tl-dot" style="background:#10b981">Q4</div><h4>Ay 10-12</h4><p>2.000+ kullanıcı<br>200+ eşleşme/ay<br><strong>Kâra geçiş ✅</strong></p></div>
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 9/12</div>
+</div>
+
+<!-- 10. ROI -->
+<div class="page">
+    <div class="tag">📊 Yatırımcı Getirisi</div>
+    <h2>25.000$ Yatırıma <span class="gradient">Ne Kazandırır?</span></h2>
+    <div class="cards c3">
+        <div class="card center" style="border-color:rgba(255,107,53,0.3)">
+            <div style="font-size:0.65rem;text-transform:uppercase;color:#FF6B35;font-weight:700;margin-bottom:0.3rem">Senaryo A</div>
+            <h4>Hisse Ortaklığı</h4>
+            <p style="font-size:1.8rem;font-weight:900;color:#FF6B35;margin:0.5rem 0">%20</p>
+            <p style="font-size:0.75rem;color:var(--text-sec);line-height:1.5">$25K → %20 hisse<br>2. yılda şirket değeri<br><strong style="color:var(--text)">$500K+ (4x getiri)</strong></p>
+        </div>
+        <div class="card center" style="border-color:rgba(16,185,129,0.3)">
+            <div style="font-size:0.65rem;text-transform:uppercase;color:var(--success);font-weight:700;margin-bottom:0.3rem">Senaryo B — Önerilen</div>
+            <h4>Kâr Payı</h4>
+            <p style="font-size:1.8rem;font-weight:900;color:var(--success);margin:0.5rem 0">%25</p>
+            <p style="font-size:0.75rem;color:var(--text-sec);line-height:1.5">Net kârın %25'i (1. yıl)<br>Ardından %15 süresiz<br><strong style="color:var(--text)">Yıllık $5.000+ pasif gelir</strong></p>
+        </div>
+        <div class="card center" style="border-color:rgba(99,102,241,0.3)">
+            <div style="font-size:0.65rem;text-transform:uppercase;color:#818cf8;font-weight:700;margin-bottom:0.3rem">Senaryo C</div>
+            <h4>Borç + Bonus</h4>
+            <p style="font-size:1.8rem;font-weight:900;color:#818cf8;margin:0.5rem 0">$28K+</p>
+            <p style="font-size:0.75rem;color:var(--text-sec);line-height:1.5">$25K geri ödeme<br>+ kâr payı bonusu<br><strong style="color:var(--text)">2 yılda $28K+ toplam</strong></p>
+        </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;padding:1rem;border:1px solid rgba(16,185,129,0.2);border-radius:12px;background:rgba(16,185,129,0.02);font-size:0.9rem">
+        ✅ Tırport <strong>$2M</strong> yatırım aldı — biz <strong style="color:#FF6B35">$25K</strong> ile aynı pazarda, daha güçlü ürünle yarışıyoruz.
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 10/12</div>
+</div>
+
+<!-- 11. NEDEN BİZ -->
+<div class="page">
+    <div class="tag">🎯 Neden Bu İş Olur?</div>
+    <h2>Bu İşi <span class="gradient">Yapabilecek Konumdayız</span></h2>
+    <div class="split">
+        <div>
+            <div class="strength"><div class="str-num">1</div><div><h4>Problem Gerçek ve Acil</h4><p>Uydurulmuş değil. Her sanayici, her nakliyeci yaşıyor.</p></div></div>
+            <div class="strength"><div class="str-num">2</div><div><h4>Ürün Hazır</h4><p>Fikir aşamasını geçtik. Platform çalışıyor, demo gösterilebilir.</p></div></div>
+            <div class="strength"><div class="str-num">3</div><div><h4>Saha Avantajımız Var</h4><p>Sivas'ta sanayiciyi, nakliyeciyi tanıyoruz. Güven ağımız var.</p></div></div>
+            <div class="strength"><div class="str-num">4</div><div><h4>Rakipler Buraya Bakmıyor</h4><p>Hepsi İstanbul odaklı. Anadolu'yu kimse dijitalleştirmedi.</p></div></div>
+            <div class="strength"><div class="str-num">5</div><div><h4>Küçük Yatırımla Kâra Geçeriz</h4><p>$25K ile 12 ayda kârlı. Somut, ölçülebilir, test edilebilir.</p></div></div>
+        </div>
+        <div>
+            <div class="card center" style="border-color:rgba(255,107,53,0.2);padding:1.5rem">
+                <div style="font-size:3rem;margin-bottom:0.5rem">🚛</div>
+                <h3>Ferhat Evci</h3>
+                <p style="color:#FF6B35;font-weight:600;margin-bottom:0.75rem">Kurucu & CEO</p>
+                <p style="text-align:left;font-size:0.8rem;color:var(--text-sec);line-height:1.9">
+                    ✅ Sivas'ta sanayi esnafı<br>
+                    ✅ Sahayı bilen girişimci<br>
+                    ✅ Hırdavat sektörü deneyimi<br>
+                    ✅ Yerel güven ağı<br>
+                    ✅ Dijital ürün geliştirme<br>
+                    ✅ E-ticaret deneyimi
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 11/12</div>
+</div>
+
+<!-- 12. KAPANIŞ -->
+<div class="page center">
+    <div style="font-size:4rem;margin-bottom:1rem">🚛</div>
+    <h1><span class="gradient">Birlikte Büyüyelim</span></h1>
+    <p class="sub" style="margin:0 auto 1.5rem;font-size:1.1rem">Sorun gerçek. Ürün hazır. Pazar devasa.<br>Tek eksik: harekete geçmek.</p>
+    <div class="roi-box" style="max-width:550px;margin:0 auto 1.5rem">
+        <div class="roi-grid">
+            <div><div class="val" style="font-size:1.3rem;color:#FF6B35">$25.000</div><div class="lbl">Yatırım</div></div>
+            <div><div class="val" style="font-size:1.3rem;color:var(--text)">12 Ay</div><div class="lbl">Kâra Geçiş</div></div>
+            <div><div class="val" style="font-size:1.3rem">4x</div><div class="lbl">Getiri Potansiyeli</div></div>
+        </div>
+    </div>
+    <p style="font-size:1rem;color:var(--text-sec)"><strong style="color:var(--text)">TırBul</strong> — Güvenle taşı, güvenle teslim al.</p>
+    <p style="font-size:0.85rem;color:var(--text-sec);margin-top:1rem">📞 Ferhat Evci | 📍 Sivas, Türkiye</p>
+    <div class="footer-info">TırBul — Yatırımcı Sunumu | Slayt 12/12</div>
+</div>
+
+</body>
+</html>

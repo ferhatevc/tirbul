@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TırBul — Nakliyeci Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        :root{--primary:#FF6B35;--primary-light:#FFB347;--bg:#0a0f1e;--bg-light:#111827;--surface:rgba(17,24,39,0.7);--text:#f0f0f0;--text-sec:#9ca3af;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;--border:rgba(255,255,255,0.08);--radius:16px;--radius-sm:10px;--bronze:#cd7f32;--silver:#c0c0c0;--gold:#ffd700;--diamond:#b9f2ff}
+        body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+        a{text-decoration:none;color:inherit}
+        .sidebar{width:260px;background:rgba(17,24,39,0.95);border-right:1px solid var(--border);padding:1.5rem 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform 0.3s}
+        .sidebar-logo{padding:0 1.5rem;margin-bottom:2rem;font-size:1.5rem;font-weight:800}
+        .sidebar-logo span:first-child{color:var(--primary)}
+        .sidebar-menu{flex:1}
+        .menu-item{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;cursor:pointer;transition:all 0.2s;font-size:0.9rem;font-weight:500;color:var(--text-sec);border-left:3px solid transparent}
+        .menu-item:hover{background:rgba(255,255,255,0.03);color:var(--text)}
+        .menu-item.active{color:var(--primary);background:rgba(255,107,53,0.05);border-left-color:var(--primary)}
+        .menu-item .icon{font-size:1.2rem;width:24px;text-align:center}
+        .sidebar-bottom{padding:1rem 1.5rem;border-top:1px solid var(--border)}
+        .user-info{display:flex;align-items:center;gap:0.75rem}
+        .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.9rem;color:#fff}
+        .user-name{font-size:0.85rem;font-weight:600}
+        .user-badge-sm{font-size:0.7rem;display:flex;align-items:center;gap:0.3rem}
+        .main{flex:1;margin-left:260px;min-height:100vh}
+        .topbar{padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(10,15,30,0.8);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
+        .topbar-title{font-size:1.1rem;font-weight:700}
+        .topbar-actions{display:flex;align-items:center;gap:1rem}
+        .logout-btn{padding:0.5rem 1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text-sec);font-size:0.8rem;cursor:pointer;font-family:inherit;transition:all 0.2s}
+        .logout-btn:hover{border-color:var(--danger);color:var(--danger)}
+        .content{padding:2rem}
+        .page{display:none}.page.active{display:block}
+
+        /* PROFILE CARD */
+        .profile-hero{padding:2rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;gap:2rem;margin-bottom:2rem;flex-wrap:wrap}
+        .profile-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff}
+        .profile-details h2{font-size:1.3rem;font-weight:800;margin-bottom:0.3rem}
+        .profile-badge{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.8rem;border-radius:50px;font-size:0.8rem;font-weight:700;margin-bottom:0.5rem}
+        .profile-meta{display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.85rem;color:var(--text-sec)}
+        .profile-meta span{display:flex;align-items:center;gap:0.3rem}
+
+        .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+        .stat-card{padding:1.5rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border)}
+        .stat-card .value{font-size:1.8rem;font-weight:800}
+        .stat-card .label{font-size:0.8rem;color:var(--text-sec);margin-top:0.2rem}
+        .quick-actions{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+        .btn{padding:0.8rem 2rem;border-radius:var(--radius-sm);font-weight:700;font-size:0.9rem;cursor:pointer;border:none;font-family:inherit;transition:all 0.3s;display:inline-flex;align-items:center;gap:0.5rem}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.3)}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-sec)}
+        .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+
+        /* LOAD CARDS */
+        .filter-bar{display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:end}
+        .filter-group{flex:1;min-width:150px}
+        .filter-group label{display:block;font-size:0.7rem;color:var(--text-sec);margin-bottom:0.3rem;font-weight:500;text-transform:uppercase}
+        .filter-group select{width:100%;padding:0.6rem 0.8rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:0.85rem;outline:none}
+        .filter-group select:focus{border-color:var(--primary)}
+        .load-grid{display:grid;gap:1rem}
+        .load-card{padding:1.5rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);transition:all 0.2s}
+        .load-card:hover{border-color:rgba(255,107,53,0.2);transform:translateY(-2px)}
+        .load-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem}
+        .load-route{font-size:1.2rem;font-weight:800}
+        .load-route .arrow{color:var(--primary);margin:0 0.3rem}
+        .load-price{font-size:1.4rem;font-weight:800;color:var(--success)}
+        .load-meta{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:0.75rem}
+        .load-tag{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.85rem;color:var(--text-sec)}
+        .load-tag strong{color:var(--text)}
+        .load-desc{font-size:0.85rem;color:var(--text-sec);margin-bottom:0.75rem;font-style:italic}
+        .load-footer{display:flex;justify-content:space-between;align-items:center;padding-top:0.75rem;border-top:1px solid var(--border)}
+        .insurance-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.3rem 0.7rem;border-radius:50px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.15);color:var(--success);font-size:0.75rem;font-weight:600}
+        .shipper-info{font-size:0.8rem;color:var(--text-sec)}
+        .shipper-info strong{color:var(--text)}
+
+        /* MODAL */
+        .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:1rem}
+        .modal-overlay.active{display:flex}
+        .modal{background:var(--bg-light);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+        .modal h3{font-size:1.2rem;font-weight:700;margin-bottom:1.5rem}
+        .modal-summary{padding:1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.03);margin-bottom:1.5rem}
+        .modal-summary .route{font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
+        .modal-summary .details{font-size:0.85rem;color:var(--text-sec)}
+        .form-group{margin-bottom:1.2rem}
+        .form-group label{display:block;font-size:0.8rem;color:var(--text-sec);margin-bottom:0.4rem;font-weight:500}
+        .form-group input,.form-group textarea{width:100%;padding:0.75rem 1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:0.9rem;outline:none}
+        .form-group input:focus,.form-group textarea:focus{border-color:var(--primary)}
+        .form-group textarea{min-height:80px;resize:vertical}
+        .modal-ins{padding:0.75rem;border-radius:var(--radius-sm);background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.1);font-size:0.85rem;color:var(--success);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem}
+        .modal-actions{display:flex;gap:0.75rem;justify-content:flex-end}
+        .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text-sec);font-size:1.5rem;cursor:pointer}
+
+        /* PROFILE FULL */
+        .profile-full{max-width:700px}
+        .profile-card-lg{padding:2rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);margin-bottom:1.5rem}
+        .profile-card-lg h3{font-size:1rem;font-weight:700;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+        .doc-list{display:grid;gap:0.5rem}
+        .doc-item{display:flex;align-items:center;gap:0.75rem;padding:0.75rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02)}
+        .doc-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem}
+        .doc-verified{background:rgba(16,185,129,0.1);color:var(--success)}
+        .doc-name{font-size:0.9rem;font-weight:500;flex:1}
+        .doc-badge{font-size:0.7rem;color:var(--success);font-weight:600}
+        .progress-section{margin-top:1.5rem}
+        .progress-label{display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:0.5rem;color:var(--text-sec)}
+        .progress-track{height:8px;border-radius:4px;background:rgba(255,255,255,0.05);overflow:hidden}
+        .progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--primary-light));transition:width 0.5s}
+        .vehicle-info{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .vehicle-item{padding:1rem;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02)}
+        .vehicle-item .label{font-size:0.75rem;color:var(--text-sec);margin-bottom:0.2rem}
+        .vehicle-item .value{font-size:1rem;font-weight:600}
+
+        /* MY OFFERS */
+        .offer-card{padding:1.2rem;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);margin-bottom:0.75rem}
+        .offer-status{display:inline-flex;padding:0.2rem 0.6rem;border-radius:50px;font-size:0.7rem;font-weight:700}
+        .offer-pending{background:rgba(245,158,11,0.1);color:var(--warning);border:1px solid rgba(245,158,11,0.2)}
+        .offer-accepted{background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.2)}
+        .offer-rejected{background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.2)}
+
+        .toast{position:fixed;top:1.5rem;right:1.5rem;padding:1rem 1.5rem;border-radius:var(--radius-sm);color:#fff;font-weight:600;font-size:0.9rem;z-index:9999;transform:translateX(120%);transition:transform 0.4s}
+        .toast.show{transform:translateX(0)}
+        .toast.success{background:linear-gradient(135deg,#059669,#10b981)}
+        .toast.error{background:linear-gradient(135deg,#dc2626,#ef4444)}
+        .empty{text-align:center;padding:3rem;color:var(--text-sec)}.empty .icon{font-size:3rem;margin-bottom:1rem}
+        .hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--bg-light);border:1px solid var(--border);border-radius:8px;padding:0.6rem;cursor:pointer;flex-direction:column;gap:4px}
+        .hamburger span{width:20px;height:2px;background:var(--text)}
+        .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90}.overlay.active{display:block}
+        @media(max-width:768px){
+            .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+            .main{margin-left:0}.hamburger{display:flex}
+            .stat-grid{grid-template-columns:repeat(2,1fr)}.content{padding:1rem}
+            .profile-hero{flex-direction:column;text-align:center}
+            .filter-bar{flex-direction:column}.vehicle-info{grid-template-columns:1fr}
+        }
+    </style>
+</head>
+<body>
+    <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-logo"><span>Tır</span><span>Bul</span></a>
+        <nav class="sidebar-menu">
+            <div class="menu-item active" onclick="showPage('dashboard')"><span class="icon">📊</span>Kontrol Paneli</div>
+            <div class="menu-item" onclick="showPage('find')"><span class="icon">🔍</span>Yük Bul</div>
+            <div class="menu-item" onclick="showPage('myoffers')"><span class="icon">📋</span>Tekliflerim</div>
+            <div class="menu-item" onclick="showPage('deliveries')"><span class="icon">🚛</span>Taşımalarım</div>
+            <div class="menu-item" onclick="showPage('profile')"><span class="icon">👤</span>Profilim</div>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="user-info">
+                <div class="avatar" id="userAvatar"></div>
+                <div><div class="user-name" id="userName"></div><div class="user-badge-sm" id="userBadgeSm"></div></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title" id="pageTitle">Kontrol Paneli</div>
+            <div class="topbar-actions">
+                <button class="logout-btn" onclick="logout()">Çıkış Yap</button>
+            </div>
+        </div>
+        <div class="content">
+            <!-- DASHBOARD -->
+            <div class="page active" id="page-dashboard">
+                <div class="profile-hero">
+                    <div class="profile-avatar" id="profileAvatar"></div>
+                    <div class="profile-details">
+                        <h2 id="profileName"></h2>
+                        <div class="profile-badge" id="profileBadge"></div>
+                        <div class="profile-meta">
+                            <span id="profileRating"></span>
+                            <span id="profileDeliveries"></span>
+                            <span id="profileVehicle"></span>
+                            <span id="profilePlate"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-card"><div class="value" id="sOffers">0</div><div class="label">Aktif Teklifler</div></div>
+                    <div class="stat-card"><div class="value" id="sAccepted">0</div><div class="label">Kabul Edilen</div></div>
+                    <div class="stat-card"><div class="value" id="sDelivered">0</div><div class="label">Tamamlanan</div></div>
+                    <div class="stat-card"><div class="value" id="sEarning">₺0</div><div class="label">Toplam Kazanç</div></div>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-primary" onclick="showPage('find')">🔍 Yük Bul</button>
+                    <button class="btn btn-outline" onclick="showPage('profile')">👤 Profilimi Görüntüle</button>
+                </div>
+            </div>
+
+            <!-- FIND LOADS -->
+            <div class="page" id="page-find">
+                <h2 style="margin-bottom:1rem;font-size:1.3rem">🔍 Yük Bul</h2>
+                <div class="filter-bar">
+                    <div class="filter-group"><label>Kalkış</label><select id="fFrom" onchange="renderLoads()"><option value="">Tümü</option><option>Sivas</option><option>Kayseri</option><option>Tokat</option><option>Ankara</option><option>İstanbul</option></select></div>
+                    <div class="filter-group"><label>Varış</label><select id="fTo" onchange="renderLoads()"><option value="">Tümü</option><option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Kayseri</option><option>Trabzon</option><option>Sivas</option></select></div>
+                    <div class="filter-group"><label>Yük Türü</label><select id="fType" onchange="renderLoads()"><option value="">Tümü</option><option>Demir</option><option>Gıda</option><option>İnşaat Malz.</option><option>Tekstil</option><option>Tarım</option></select></div>
+                    <div class="filter-group"><label>Sırala</label><select id="fSort" onchange="renderLoads()"><option value="date">Tarihe Göre</option><option value="priceH">Fiyat ↑</option><option value="priceL">Fiyat ↓</option></select></div>
+                </div>
+                <div class="load-grid" id="loadList"></div>
+            </div>
+
+            <!-- MY OFFERS -->
+            <div class="page" id="page-myoffers">
+                <h2 style="margin-bottom:1.5rem;font-size:1.3rem">📋 Tekliflerim</h2>
+                <div id="myOffersContainer"></div>
+            </div>
+
+            <!-- DELIVERIES -->
+            <div class="page" id="page-deliveries">
+                <h2 style="margin-bottom:1.5rem;font-size:1.3rem">🚛 Taşımalarım</h2>
+                <div id="deliveriesContainer"></div>
+            </div>
+
+            <!-- PROFILE -->
+            <div class="page" id="page-profile">
+                <h2 style="margin-bottom:1.5rem;font-size:1.3rem">👤 Profilim</h2>
+                <div class="profile-full">
+                    <div class="profile-card-lg">
+                        <h3>🏆 Rozet Durumu</h3>
+                        <div style="text-align:center;padding:1.5rem 0">
+                            <div id="bigBadge" style="font-size:4rem;margin-bottom:0.5rem"></div>
+                            <div id="bigBadgeName" style="font-size:1.3rem;font-weight:800;margin-bottom:0.3rem"></div>
+                            <div id="bigBadgeDesc" style="font-size:0.85rem;color:var(--text-sec)"></div>
+                        </div>
+                        <div class="progress-section" id="progressSection"></div>
+                    </div>
+                    <div class="profile-card-lg">
+                        <h3>🚛 Araç Bilgileri</h3>
+                        <div class="vehicle-info" id="vehicleInfo"></div>
+                    </div>
+                    <div class="profile-card-lg">
+                        <h3>📄 Belgeler</h3>
+                        <div class="doc-list">
+                            <div class="doc-item"><div class="doc-status doc-verified">✅</div><div class="doc-name">Ehliyet (E Sınıfı)</div><div class="doc-badge">Doğrulandı</div></div>
+                            <div class="doc-item"><div class="doc-status doc-verified">✅</div><div class="doc-name">SRC Belgesi</div><div class="doc-badge">Doğrulandı</div></div>
+                            <div class="doc-item"><div class="doc-status doc-verified">✅</div><div class="doc-name">K1 Yetki Belgesi</div><div class="doc-badge">Doğrulandı</div></div>
+                            <div class="doc-item"><div class="doc-status doc-verified">✅</div><div class="doc-name">Araç Muayene</div><div class="doc-badge">Doğrulandı</div></div>
+                            <div class="doc-item"><div class="doc-status doc-verified">✅</div><div class="doc-name">Sabıka Kaydı</div><div class="doc-badge">Temiz</div></div>
+                        </div>
+                    </div>
+                    <div class="profile-card-lg">
+                        <h3>📊 Performans İstatistikleri</h3>
+                        <div class="vehicle-info">
+                            <div class="vehicle-item"><div class="label">Toplam Teslimat</div><div class="value" id="pDeliveries">0</div></div>
+                            <div class="vehicle-item"><div class="label">Hasarsız Teslimat</div><div class="value" id="pDamageFree">%100</div></div>
+                            <div class="vehicle-item"><div class="label">Ortalama Puan</div><div class="value" id="pRating">0</div></div>
+                            <div class="vehicle-item"><div class="label">İptal Oranı</div><div class="value" style="color:var(--success)">%0</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- OFFER MODAL -->
+    <div class="modal-overlay" id="offerModal">
+        <div class="modal">
+            <h3>📩 Teklif Gönder</h3>
+            <div class="modal-summary" id="modalSummary"></div>
+            <div class="form-group">
+                <label>Teklif Fiyatınız (₺)</label>
+                <input type="number" id="offerPrice" placeholder="35000">
+            </div>
+            <div class="form-group">
+                <label>Mesajınız</label>
+                <textarea id="offerMsg" placeholder="Yük sahibine mesajınız..."></textarea>
+            </div>
+            <div class="modal-ins">🛡️ Bu taşıma TırBul Güvence kapsamındadır. Sigorta dahildir.</div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal()">İptal</button>
+                <button class="btn btn-primary" onclick="sendOffer()">Teklif Gönder →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const BADGE={bronze:{icon:'🥉',name:'Bronz',color:'var(--bronze)',desc:'İlk adımları attın! 5+ teslimat ile Gümüş rozete yüksel.',next:5,nextName:'Gümüş'},silver:{icon:'🥈',name:'Gümüş',color:'var(--silver)',desc:'Güvenilir bir şoförsün! 25+ teslimat ile Altın rozete yüksel.',next:25,nextName:'Altın'},gold:{icon:'🥇',name:'Altın',color:'var(--gold)',desc:'Sektörün yıldızısın! 100+ teslimat ile Elmas rozete yüksel.',next:100,nextName:'Elmas'},diamond:{icon:'💎',name:'Elmas',color:'var(--diamond)',desc:'En üst seviye! Platformun en güvenilir şoförüsün.',next:null,nextName:null}};
+        let currentUser, offerLoadId=null;
+
+        function init(){
+            const u=localStorage.getItem('tirbul_current_user');
+            if(!u) return window.location.href='register.html';
+            currentUser=JSON.parse(u);
+            if(currentUser.type==='shipper') return window.location.href='dashboard-shipper.html';
+            const b=BADGE[currentUser.badge]||BADGE.bronze;
+            document.getElementById('userName').textContent=currentUser.name;
+            document.getElementById('userAvatar').textContent=currentUser.name.split(' ').map(n=>n[0]).join('');
+            document.getElementById('userBadgeSm').innerHTML=b.icon+' '+b.name+' Şoför';
+            // Profile hero
+            const av=document.getElementById('profileAvatar');
+            av.textContent=currentUser.name.split(' ').map(n=>n[0]).join('');
+            av.style.background=`linear-gradient(135deg, ${b.color}, var(--primary))`;
+            document.getElementById('profileName').textContent=currentUser.name;
+            document.getElementById('profileBadge').innerHTML=b.icon+' '+b.name+' Şoför';
+            document.getElementById('profileBadge').style.background=`${b.color}20`;
+            document.getElementById('profileBadge').style.color=b.color;
+            document.getElementById('profileRating').innerHTML='⭐ '+(currentUser.rating||0)+' / 5.0';
+            document.getElementById('profileDeliveries').innerHTML='📦 '+(currentUser.deliveries||0)+' teslimat';
+            document.getElementById('profileVehicle').innerHTML='🚛 '+(currentUser.vehicleType||'Tır');
+            document.getElementById('profilePlate').innerHTML='🔢 '+(currentUser.plate||'');
+            // Profile page
+            document.getElementById('bigBadge').textContent=b.icon;
+            document.getElementById('bigBadgeName').textContent=b.name+' Şoför';
+            document.getElementById('bigBadgeName').style.color=b.color;
+            document.getElementById('bigBadgeDesc').textContent=b.desc;
+            if(b.next){
+                const pct=Math.min(100,Math.round(((currentUser.deliveries||0)/b.next)*100));
+                document.getElementById('progressSection').innerHTML=`
+                    <div class="progress-label"><span>${currentUser.deliveries||0} / ${b.next} teslimat</span><span>${b.nextName} rozete %${pct}</span></div>
+                    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+            } else {
+                document.getElementById('progressSection').innerHTML='<p style="text-align:center;color:var(--success);font-weight:600">🎉 En üst rozete ulaştın!</p>';
+            }
+            document.getElementById('vehicleInfo').innerHTML=`
+                <div class="vehicle-item"><div class="label">Araç Tipi</div><div class="value">${currentUser.vehicleType||'Tır'}</div></div>
+                <div class="vehicle-item"><div class="label">Plaka</div><div class="value">${currentUser.plate||'-'}</div></div>
+                <div class="vehicle-item"><div class="label">Kapasite</div><div class="value">${currentUser.capacity||0} Ton</div></div>
+                <div class="vehicle-item"><div class="label">Yetki Belgesi</div><div class="value">${currentUser.authDoc||'-'}</div></div>`;
+            document.getElementById('pDeliveries').textContent=currentUser.deliveries||0;
+            document.getElementById('pDamageFree').textContent='%'+(100-(currentUser.damageRate||0));
+            document.getElementById('pRating').textContent=(currentUser.rating||0)+' ⭐';
+            updateStats(); renderLoads();
+        }
+
+        function getLoads(){return JSON.parse(localStorage.getItem('tirbul_loads')||'[]');}
+        function getOffers(){return JSON.parse(localStorage.getItem('tirbul_offers')||'[]');}
+
+        function updateStats(){
+            const offers=getOffers().filter(o=>o.carrierId===currentUser.id);
+            const loads=getLoads();
+            const accepted=loads.filter(l=>l.carrierId===currentUser.id && l.status==='matched');
+            const completed=loads.filter(l=>l.carrierId===currentUser.id && l.status==='completed');
+            document.getElementById('sOffers').textContent=offers.length;
+            document.getElementById('sAccepted').textContent=accepted.length;
+            document.getElementById('sDelivered').textContent=completed.length;
+            document.getElementById('sEarning').textContent='₺'+completed.reduce((s,l)=>s+l.price,0).toLocaleString('tr-TR');
+        }
+
+        function renderLoads(){
+            let loads=getLoads().filter(l=>l.status==='active');
+            const from=document.getElementById('fFrom')?.value;
+            const to=document.getElementById('fTo')?.value;
+            const type=document.getElementById('fType')?.value;
+            const sort=document.getElementById('fSort')?.value;
+            if(from) loads=loads.filter(l=>l.from===from);
+            if(to) loads=loads.filter(l=>l.to===to);
+            if(type) loads=loads.filter(l=>l.loadType===type);
+            if(sort==='priceH') loads.sort((a,b)=>a.price-b.price);
+            else if(sort==='priceL') loads.sort((a,b)=>b.price-a.price);
+            else loads.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+
+            const container=document.getElementById('loadList');
+            if(!loads.length){container.innerHTML='<div class="empty"><div class="icon">📭</div><p>Uygun yük ilanı bulunamadı</p></div>';return;}
+            container.innerHTML=loads.map(l=>`
+                <div class="load-card">
+                    <div class="load-header">
+                        <div class="load-route">${l.from}<span class="arrow">→</span>${l.to}</div>
+                        <div class="load-price">₺${Number(l.price).toLocaleString('tr-TR')}</div>
+                    </div>
+                    <div class="load-meta">
+                        <span class="load-tag">📦 <strong>${l.loadType}</strong></span>
+                        <span class="load-tag">⚖️ <strong>${l.weight} Ton</strong></span>
+                        <span class="load-tag">📅 ${l.date}</span>
+                    </div>
+                    ${l.description?`<div class="load-desc">"${l.description}"</div>`:''}
+                    <div class="load-footer">
+                        <div>
+                            <div class="insurance-badge">🛡️ TırBul Güvence</div>
+                            <div class="shipper-info" style="margin-top:0.4rem">${l.company||l.shipperName}</div>
+                        </div>
+                        <button class="btn btn-primary" style="padding:0.6rem 1.5rem;font-size:0.85rem" onclick="openOfferModal(${l.id})">Teklif Ver</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function openOfferModal(loadId){
+            offerLoadId=loadId;
+            const l=getLoads().find(x=>x.id===loadId);
+            if(!l) return;
+            document.getElementById('modalSummary').innerHTML=`
+                <div class="route">${l.from} → ${l.to}</div>
+                <div class="details">📦 ${l.loadType} | ⚖️ ${l.weight} Ton | 📅 ${l.date}<br>${l.company||l.shipperName}</div>`;
+            document.getElementById('offerPrice').value=l.price;
+            document.getElementById('offerMsg').value='';
+            document.getElementById('offerModal').classList.add('active');
+        }
+        function closeModal(){document.getElementById('offerModal').classList.remove('active');}
+
+        function sendOffer(){
+            const price=parseInt(document.getElementById('offerPrice').value);
+            const msg=document.getElementById('offerMsg').value.trim();
+            if(!price) return showToast('Teklif fiyatı girin.','error');
+            const offers=getOffers();
+            if(offers.find(o=>o.loadId===offerLoadId && o.carrierId===currentUser.id)) return showToast('Bu ilana zaten teklif verdiniz.','error');
+            offers.push({
+                id:Date.now(), loadId:offerLoadId, carrierId:currentUser.id,
+                carrierName:currentUser.name, rating:currentUser.rating||0,
+                badge:currentUser.badge||'bronze', vehicleType:currentUser.vehicleType||'Tır',
+                capacity:currentUser.capacity||0, price, message:msg||'Teklif verildi.',
+                plate:currentUser.plate||'', createdAt:new Date().toISOString().split('T')[0], status:'pending'
+            });
+            localStorage.setItem('tirbul_offers',JSON.stringify(offers));
+            closeModal();
+            showToast('🎉 Teklifiniz gönderildi! Yük sahibi inceleyecek.');
+            updateStats();
+        }
+
+        function renderMyOffers(){
+            const offers=getOffers().filter(o=>o.carrierId===currentUser.id);
+            const loads=getLoads();
+            if(!offers.length){document.getElementById('myOffersContainer').innerHTML='<div class="empty"><div class="icon">📭</div><p>Henüz teklif vermediniz</p><button class="btn btn-primary" onclick="showPage(\'find\')" style="margin-top:1rem">Yük Bul</button></div>';return;}
+            document.getElementById('myOffersContainer').innerHTML=offers.map(o=>{
+                const l=loads.find(x=>x.id===o.loadId);
+                const accepted=l&&l.carrierId===currentUser.id&&l.status==='matched';
+                const statusCls=accepted?'offer-accepted':'offer-pending';
+                const statusText=accepted?'Kabul Edildi':'Bekliyor';
+                return `<div class="offer-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+                        <span style="font-weight:700">${l?l.from+' → '+l.to:'-'}</span>
+                        <span class="offer-status ${statusCls}">${statusText}</span>
+                    </div>
+                    <div style="font-size:0.85rem;color:var(--text-sec)">📦 ${l?l.loadType:''} | ⚖️ ${l?l.weight:''} Ton | Teklif: ₺${Number(o.price).toLocaleString('tr-TR')}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderDeliveries(){
+            const loads=getLoads().filter(l=>l.carrierId===currentUser.id);
+            if(!loads.length){document.getElementById('deliveriesContainer').innerHTML='<div class="empty"><div class="icon">🚛</div><p>Henüz taşıma yok</p></div>';return;}
+            document.getElementById('deliveriesContainer').innerHTML=loads.map(l=>{
+                const s=l.status==='completed'?{text:'Tamamlandı',cls:'offer-accepted'}:{text:'Taşınıyor',cls:'offer-pending'};
+                return `<div class="offer-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+                        <span style="font-weight:700">${l.from} → ${l.to}</span>
+                        <span class="offer-status ${s.cls}">${s.text}</span>
+                    </div>
+                    <div style="font-size:0.85rem;color:var(--text-sec)">📦 ${l.loadType} | ⚖️ ${l.weight} Ton | ₺${Number(l.price).toLocaleString('tr-TR')}</div>
+                    <div style="font-size:0.8rem;color:var(--text-sec);margin-top:0.5rem">${l.company||l.shipperName}</div>
+                    ${l.status==='matched'?`<button class="btn btn-primary" style="margin-top:0.75rem;padding:0.5rem 1rem;font-size:0.8rem" onclick="uploadPhoto(${l.id})">📸 Fotoğraf Yükle</button>`:''}
+                </div>`;
+            }).join('');
+        }
+
+        function uploadPhoto(lid){
+            showToast('📸 Fotoğraf başarıyla yüklendi! Teslimat kanıtı kaydedildi.');
+        }
+
+        function showPage(p){
+            document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));
+            document.getElementById('page-'+p).classList.add('active');
+            document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+            const idx={dashboard:0,find:1,myoffers:2,deliveries:3,profile:4};
+            if(document.querySelectorAll('.menu-item')[idx[p]]) document.querySelectorAll('.menu-item')[idx[p]].classList.add('active');
+            const titles={dashboard:'Kontrol Paneli',find:'Yük Bul',myoffers:'Tekliflerim',deliveries:'Taşımalarım',profile:'Profilim'};
+            document.getElementById('pageTitle').textContent=titles[p];
+            if(p==='find') renderLoads();
+            if(p==='myoffers') renderMyOffers();
+            if(p==='deliveries') renderDeliveries();
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        }
+        function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active');}
+        function logout(){localStorage.removeItem('tirbul_current_user');window.location.href='register.html';}
+        function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=(type==='success'?'✅ ':'❌ ')+msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3500);}
+        init();
+    </script>
+</body>
+</html>
